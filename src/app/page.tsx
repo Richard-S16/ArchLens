@@ -40,7 +40,7 @@ export default function HomePage() {
             <span className="font-bold text-foreground tracking-tight text-lg">ArchLens</span>
           </div>
           <Badge variant="secondary" className="text-xs font-mono border-border/50">
-            Phase 1 · Foundation
+            Phase 2 · Analysis Engine
           </Badge>
         </nav>
 
@@ -89,7 +89,7 @@ export default function HomePage() {
         <footer className="border-t border-border/30 py-5 px-6">
           <div className="max-w-6xl mx-auto flex items-center justify-between text-xs text-muted-foreground/60">
             <span>ArchLens — AI Repository Intelligence Platform</span>
-            <span className="font-mono">v0.1.0 · Phase 1</span>
+            <span className="font-mono">v0.2.0 · Phase 2</span>
           </div>
         </footer>
       </main>

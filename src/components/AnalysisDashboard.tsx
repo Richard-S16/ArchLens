@@ -1,15 +1,27 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { GitBranch, Star, GitFork, Code2, ArrowLeft, FileCode, Globe } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  GitBranch, Star, GitFork, Code2, ArrowLeft, FileCode, Globe,
+  Loader2, BrainCircuit, Network,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { IngestionResult } from "@/lib/github";
+import type { AnalysisResult } from "@/lib/types";
 import { LanguageBar } from "@/components/LanguageBar";
 import { FileTree } from "@/components/FileTree";
+import { ArchitectureScores } from "@/components/ArchitectureScores";
+import { InsightCards } from "@/components/InsightCards";
+import { DependencyGraphSummary } from "@/components/DependencyGraphSummary";
 
-type Props = { result: IngestionResult; onReset: () => void };
+type Props = {
+  result: IngestionResult;
+  analysisResult: AnalysisResult | null;
+  isAnalyzing: boolean;
+  onReset: () => void;
+};
 
 const container = {
   hidden: {},
@@ -20,7 +32,39 @@ const item = {
   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
-export function AnalysisDashboard({ result, onReset }: Props) {
+function AnalysisLoadingState() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="flex flex-col items-center gap-4 py-10"
+    >
+      <div className="relative">
+        <div className="w-12 h-12 rounded-full border-2 border-(--al-blue)/20 border-t-(--al-blue) animate-spin" />
+        <BrainCircuit className="absolute inset-0 m-auto w-5 h-5 text-(--al-blue)" />
+      </div>
+      <div className="text-center space-y-1">
+        <p className="text-sm text-foreground/80 font-medium">Parsing architecture…</p>
+        <p className="text-xs text-muted-foreground">
+          Fetching source files, resolving dependencies, building graph
+        </p>
+      </div>
+      <div className="w-full max-w-md space-y-2 mt-2">
+        {[80, 60, 72, 50].map((w, i) => (
+          <div
+            key={i}
+            className="h-2 rounded-full bg-(--al-surface-elevated) animate-pulse"
+            style={{ width: `${w}%` }}
+          />
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset }: Props) {
   const { meta, tree, languages } = result;
 
   return (
@@ -124,22 +168,98 @@ export function AnalysisDashboard({ result, onReset }: Props) {
           </Card>
         </motion.div>
 
-        <motion.div variants={item} className="md:col-span-2 lg:col-span-3">
-          <Card className="bg-linear-to-br from-(--al-blue)/10 to-(--al-purple)/10 border-(--al-blue)/20 hover:border-(--al-blue)/40 transition-colors">
-            <CardContent className="py-6 flex items-center justify-between flex-wrap gap-4">
-              <div>
-                <p className="font-semibold text-foreground">Architecture Visualization — Coming in Phase 3</p>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Interactive dependency graph, AI architectural analysis & scoring
-                </p>
-              </div>
-              <Badge className="bg-(--al-blue)/20 text-(--al-blue) border-(--al-blue)/30 hover:bg-(--al-blue)/30">
-                In Development
-              </Badge>
+      </motion.div>
+
+      <AnimatePresence mode="wait">
+        {isAnalyzing && !analysisResult && (
+          <Card className="mt-4 bg-(--al-surface) border-border/50">
+            <CardContent className="py-4">
+              <AnalysisLoadingState />
             </CardContent>
           </Card>
-        </motion.div>
-      </motion.div>
+        )}
+
+        {analysisResult && (
+          <motion.div
+            key="analysis"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="mt-4 space-y-4"
+          >
+            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <BrainCircuit className="w-3.5 h-3.5 text-(--al-blue)" />
+                  Architecture Health Scores
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ArchitectureScores scores={analysisResult.scores} />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <Network className="w-3.5 h-3.5 text-(--al-purple)" />
+                  Dependency Analysis
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DependencyGraphSummary result={analysisResult} />
+              </CardContent>
+            </Card>
+
+            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Architectural Insights
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {analysisResult.insights.length > 0 ? (
+                  <InsightCards insights={analysisResult.insights} />
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-3 py-4 px-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
+                      <Loader2 className="w-4 h-4 text-emerald-400 hidden" />
+                      <span className="text-emerald-400 text-base">✓</span>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-400">No architecture issues detected</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        This repository follows good architectural practices — well-structured, low coupling, and no circular dependencies.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-linear-to-br from-(--al-blue)/8 to-(--al-purple)/8 border-(--al-blue)/20 hover:border-(--al-blue)/35 transition-colors">
+              <CardContent className="py-5 flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <p className="font-semibold text-foreground flex items-center gap-2">
+                    <Network className="w-4 h-4 text-(--al-blue)" />
+                    Interactive Dependency Graph — Phase 3
+                  </p>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Full force-directed graph with GPU rendering, zoom/pan, hotspot highlighting & dependency tracing
+                  </p>
+                </div>
+                <Badge className="bg-(--al-blue)/15 text-(--al-blue) border-(--al-blue)/25 hover:bg-(--al-blue)/25 shrink-0">
+                  Coming Next
+                </Badge>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

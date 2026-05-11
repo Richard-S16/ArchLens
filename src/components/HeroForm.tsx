@@ -6,8 +6,9 @@ import { Search, GitBranch, ArrowRight, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { repoUrlSchema } from "@/lib/github";
+import { repoUrlSchema, parseRepoUrl } from "@/lib/github";
 import type { IngestionResult } from "@/lib/github";
+import type { AnalysisResult } from "@/lib/types";
 import { toast } from "sonner";
 import { AnalysisDashboard } from "./AnalysisDashboard";
 
@@ -22,8 +23,31 @@ export function HeroForm() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<IngestionResult | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const runAnalysis = async (owner: string, repo: string) => {
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ owner, repo }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.warn("Analysis failed:", data.error);
+        return;
+      }
+      setAnalysisResult(data as AnalysisResult);
+    } catch (err) {
+      console.warn("Analysis error:", err);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const handleSubmit = async (repoUrl: string = url) => {
     const validated = repoUrlSchema.safeParse(repoUrl.trim());
@@ -35,6 +59,7 @@ export function HeroForm() {
     setError(null);
     setLoading(true);
     setResult(null);
+    setAnalysisResult(null);
 
     try {
       const res = await fetch("/api/ingest", {
@@ -46,7 +71,11 @@ export function HeroForm() {
       if (!res.ok) {
         throw new Error(data.error ?? "Analysis failed");
       }
-      setResult(data as IngestionResult);
+      const ingested = data as IngestionResult;
+      setResult(ingested);
+
+      const { owner, repo } = parseRepoUrl(repoUrl.trim());
+      void runAnalysis(owner, repo);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Something went wrong";
       setError(msg);
@@ -67,7 +96,16 @@ export function HeroForm() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <AnalysisDashboard result={result} onReset={() => setResult(null)} />
+        <AnalysisDashboard
+          result={result}
+          analysisResult={analysisResult}
+          isAnalyzing={isAnalyzing}
+          onReset={() => {
+            setResult(null);
+            setAnalysisResult(null);
+            setIsAnalyzing(false);
+          }}
+        />
       </motion.div>
     );
   }

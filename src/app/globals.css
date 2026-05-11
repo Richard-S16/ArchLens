@@ -48,30 +48,25 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* ArchLens — always dark, premium design system */
 :root {
-  /* Graphite black / deep navy base */
   --background: oklch(0.09 0.01 260);
   --foreground: oklch(0.95 0 0);
   --card: oklch(0.13 0.015 260);
   --card-foreground: oklch(0.95 0 0);
   --popover: oklch(0.13 0.015 260);
   --popover-foreground: oklch(0.95 0 0);
-  /* Electric blue primary */
   --primary: oklch(0.62 0.22 240);
   --primary-foreground: oklch(0.98 0 0);
   --secondary: oklch(0.18 0.02 260);
   --secondary-foreground: oklch(0.85 0 0);
   --muted: oklch(0.18 0.02 260);
   --muted-foreground: oklch(0.55 0.01 260);
-  /* Subtle purple accent */
   --accent: oklch(0.55 0.18 280);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.65 0.22 27);
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 10%);
   --ring: oklch(0.62 0.22 240);
-  /* Chart colours — blue→purple ramp */
   --chart-1: oklch(0.62 0.22 240);
   --chart-2: oklch(0.55 0.18 280);
   --chart-3: oklch(0.50 0.14 200);
@@ -86,7 +81,6 @@
   --sidebar-accent-foreground: oklch(0.85 0 0);
   --sidebar-border: oklch(1 0 0 / 8%);
   --sidebar-ring: oklch(0.62 0.22 240);
-  /* ArchLens custom tokens */
   --al-blue: oklch(0.62 0.22 240);
   --al-purple: oklch(0.55 0.18 280);
   --al-glow-blue: oklch(0.62 0.22 240 / 30%);
@@ -95,8 +89,6 @@
   --al-surface-elevated: oklch(0.16 0.02 260);
   --al-grid-line: oklch(1 0 0 / 4%);
 }
-
-/* No separate .dark — entire app uses dark palette */
 
 @layer base {
   * {
