@@ -17,6 +17,7 @@ import { ArchitectureScores } from "@/components/ArchitectureScores";
 import { InsightCards } from "@/components/InsightCards";
 import { DependencyGraphSummary } from "@/components/DependencyGraphSummary";
 import { container, item } from "@/constants/animations";
+import { AnalysisLoadingState } from "@/components/AnalysisLoadingState";
 
 const DependencyGraph = dynamic(
   () => import("@/components/DependencyGraph").then((m) => ({ default: m.DependencyGraph })),
@@ -29,38 +30,6 @@ type Props = {
   isAnalyzing: boolean;
   onReset: () => void;
 };
-
-function AnalysisLoadingState() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-      className="flex flex-col items-center gap-4 py-10"
-    >
-      <div className="relative">
-        <div className="w-12 h-12 rounded-full border-2 border-(--al-blue)/20 border-t-(--al-blue) animate-spin" />
-        <BrainCircuit className="absolute inset-0 m-auto w-5 h-5 text-(--al-blue)" />
-      </div>
-      <div className="text-center space-y-1">
-        <p className="text-sm text-foreground/80 font-medium">Parsing architecture…</p>
-        <p className="text-xs text-muted-foreground">
-          Fetching source files, resolving dependencies, building graph
-        </p>
-      </div>
-      <div className="w-full max-w-md space-y-2 mt-2">
-        {[80, 60, 72, 50].map((w, i) => (
-          <div
-            key={i}
-            className="h-2 rounded-full bg-(--al-surface-elevated) animate-pulse"
-            style={{ width: `${w}%` }}
-          />
-        ))}
-      </div>
-    </motion.div>
-  );
-}
 
 export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset }: Props) {
   const { meta, tree, languages } = result;
