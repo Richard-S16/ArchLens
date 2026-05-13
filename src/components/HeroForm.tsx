@@ -11,13 +11,7 @@ import type { IngestionResult } from "@/types/github";
 import type { AnalysisResult } from "@/types/analysis";
 import { toast } from "sonner";
 import { AnalysisDashboard } from "./AnalysisDashboard";
-
-const EXAMPLE_REPOS = [
-  "https://github.com/vercel/next.js",
-  "https://github.com/vitejs/vite",
-  "https://github.com/pmndrs/zustand",
-  "https://github.com/shadcn-ui/ui",
-];
+import { EXAMPLE_REPOS } from "@/constants/heroForm";
 
 export function HeroForm() {
   const [url, setUrl] = useState("");

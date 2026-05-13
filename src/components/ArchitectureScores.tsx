@@ -3,16 +3,8 @@
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect } from "react";
 import type { ArchitectureScores } from "@/types/analysis";
-
-type ScoreKey = keyof ArchitectureScores;
-
-const SCORE_META: Record<ScoreKey, { label: string; description: string }> = {
-  coupling: { label: "Coupling", description: "Module decoupling quality" },
-  maintainability: { label: "Maintainability", description: "Code quality & test coverage" },
-  scalability: { label: "Scalability", description: "Architecture growth potential" },
-  frontendPerformance: { label: "Performance", description: "Frontend delivery efficiency" },
-  architectureConsistency: { label: "Consistency", description: "Structural pattern coherence" },
-};
+import { SCORE_META } from "@/constants/architectureScores";
+import type { ScoreKey } from "@/constants/architectureScores";
 
 function scoreColor(value: number): string {
   if (value >= 80) return "oklch(0.65 0.18 160)";

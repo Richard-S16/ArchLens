@@ -16,6 +16,7 @@ import { FileTree } from "@/components/FileTree";
 import { ArchitectureScores } from "@/components/ArchitectureScores";
 import { InsightCards } from "@/components/InsightCards";
 import { DependencyGraphSummary } from "@/components/DependencyGraphSummary";
+import { container, item } from "@/constants/animations";
 
 const DependencyGraph = dynamic(
   () => import("@/components/DependencyGraph").then((m) => ({ default: m.DependencyGraph })),
@@ -27,15 +28,6 @@ type Props = {
   analysisResult: AnalysisResult | null;
   isAnalyzing: boolean;
   onReset: () => void;
-};
-
-const container = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.07 } },
-};
-const item = {
-  hidden: { opacity: 0, y: 16 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
 };
 
 function AnalysisLoadingState() {

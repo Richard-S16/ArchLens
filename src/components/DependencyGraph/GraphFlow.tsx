@@ -31,14 +31,9 @@ import {
 } from "@/constants/dependencyGraph";
 import type { RFNode, RFEdge, LabelNode, NodeData } from "@/types/graph";
 import { computePositions } from "./computePositions";
-import { GraphNodeComponent } from "./GraphNodeComponent";
-import { GraphEdgeComponent } from "./GraphEdgeComponent";
 import { NodeDetailPanel } from "./NodeDetailPanel";
-import { LayerLabelNode } from "./LayerLabelNode";
 import { FilterPill } from "./FilterPill";
-
-const edgeTypes = { graphEdge: GraphEdgeComponent };
-const nodeTypes = { graphNode: GraphNodeComponent, layerLabel: LayerLabelNode };
+import { edgeTypes, nodeTypes } from "@/constants/graphFlow";
 
 export function GraphFlow({
   graphNodes,
