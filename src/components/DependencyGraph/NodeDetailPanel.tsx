@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowDownLeft, ArrowUpRight, X } from "lucide-react";
 import type { GraphNode, GraphEdge } from "@/types/analysis";
-import { TYPE_CONFIG, LAYER_LABELS } from "./constants";
+import { TYPE_CONFIG, LAYER_LABELS } from "@/properties/dependencyGraph";
 
 export function NodeDetailPanel({
   nodeId,
