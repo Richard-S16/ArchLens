@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { repoUrlSchema, parseRepoUrl } from "@/lib/github";
-import type { IngestionResult, FileNode } from "@/lib/github";
+import type { IngestionResult, FileNode } from "@/types/github";
 import { GITHUB_API } from "@/properties/github";
 
 async function githubFetch(path: string) {

@@ -15,7 +15,7 @@ import {
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Layers } from "lucide-react";
-import type { GraphNode, GraphEdge, NodeType } from "@/lib/types";
+import type { GraphNode, GraphEdge, NodeType } from "@/types/analysis";
 import {
   NODE_W,
   NODE_H,
@@ -29,14 +29,13 @@ import {
   LAYER_LABELS,
   LAYER_COLORS,
 } from "./constants";
-import type { RFNode, RFEdge, LabelNode } from "./graphTypes";
+import type { RFNode, RFEdge, LabelNode, NodeData } from "@/types/graph";
 import { computePositions } from "./computePositions";
 import { GraphNodeComponent } from "./GraphNodeComponent";
 import { GraphEdgeComponent } from "./GraphEdgeComponent";
 import { NodeDetailPanel } from "./NodeDetailPanel";
 import { LayerLabelNode } from "./LayerLabelNode";
 import { FilterPill } from "./FilterPill";
-import type { NodeData } from "./graphTypes";
 
 const edgeTypes = { graphEdge: GraphEdgeComponent };
 const nodeTypes = { graphNode: GraphNodeComponent, layerLabel: LayerLabelNode };

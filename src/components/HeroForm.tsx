@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { repoUrlSchema, parseRepoUrl } from "@/lib/github";
-import type { IngestionResult } from "@/lib/github";
-import type { AnalysisResult } from "@/lib/types";
+import type { IngestionResult } from "@/types/github";
+import type { AnalysisResult } from "@/types/analysis";
 import { toast } from "sonner";
 import { AnalysisDashboard } from "./AnalysisDashboard";
 

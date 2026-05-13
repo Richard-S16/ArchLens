@@ -1,4 +1,4 @@
-import type { GraphNode } from "@/lib/types";
+import type { GraphNode } from "@/types/analysis";
 import { LAYER_ORDER, NODE_W, NODE_H, H_GAP, V_GAP, ROW_GAP, NODES_PER_ROW } from "./constants";
 
 export function computePositions(

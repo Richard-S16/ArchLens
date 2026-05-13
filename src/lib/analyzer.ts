@@ -1,4 +1,4 @@
-import type { FileNode, RepoMeta } from "@/lib/github";
+import type { FileNode, RepoMeta } from "@/types/github";
 import type {
   GraphNode,
   GraphEdge,
@@ -11,7 +11,7 @@ import type {
   AnalysisResult,
   CircularDep,
   HotspotFile,
-} from "@/lib/types";
+} from "@/types/analysis";
 import { extractImports, isLocalImport, resolveImportPath } from "@/lib/parser";
 
 export function classifyNodeType(path: string): NodeType {

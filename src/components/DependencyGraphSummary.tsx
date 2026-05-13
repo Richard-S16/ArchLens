@@ -14,7 +14,7 @@ import {
   Code2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { AnalysisResult } from "@/lib/types";
+import type { AnalysisResult } from "@/types/analysis";
 
 type Props = {
   result: AnalysisResult;

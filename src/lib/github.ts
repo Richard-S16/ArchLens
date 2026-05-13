@@ -8,31 +8,6 @@ export const repoUrlSchema = z
     "Must be a public GitHub repository URL (e.g. https://github.com/owner/repo)"
   );
 
-export type RepoMeta = {
-  owner: string;
-  repo: string;
-  fullName: string;
-  description: string | null;
-  language: string | null;
-  stars: number;
-  forks: number;
-  size: number;
-  defaultBranch: string;
-  topics: string[];
-};
-
-export type FileNode = {
-  path: string;
-  type: "blob" | "tree";
-  size?: number;
-};
-
-export type IngestionResult = {
-  meta: RepoMeta;
-  tree: FileNode[];
-  languages: Record<string, number>;
-};
-
 export function parseRepoUrl(url: string): { owner: string; repo: string } {
   const match = url.match(/github\.com\/([^/]+)\/([^/?#]+)/);
   if (!match) throw new Error("Invalid GitHub URL");

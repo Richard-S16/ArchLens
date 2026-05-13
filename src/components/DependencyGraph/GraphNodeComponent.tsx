@@ -2,7 +2,7 @@
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { TYPE_CONFIG, NODE_W, NODE_H } from "./constants";
-import type { RFNode } from "./graphTypes";
+import type { RFNode } from "@/types/graph";
 
 export function GraphNodeComponent({ data, selected }: NodeProps<RFNode>) {
   const { node, dimmed, focused } = data;

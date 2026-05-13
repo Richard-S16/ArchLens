@@ -1,7 +1,7 @@
 "use client";
 
 import { BaseEdge, getBezierPath, type EdgeProps } from "@xyflow/react";
-import type { RFEdge } from "./graphTypes";
+import type { RFEdge } from "@/types/graph";
 
 export function GraphEdgeComponent({
   id,

@@ -1,4 +1,4 @@
-import type { NodeType, LayerType } from "@/lib/types";
+import type { NodeType, LayerType } from "@/types/analysis";
 
 export const NODE_W = 178;
 export const NODE_H = 70;

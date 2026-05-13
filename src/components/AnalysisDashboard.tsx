@@ -9,8 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { IngestionResult } from "@/lib/github";
-import type { AnalysisResult } from "@/lib/types";
+import type { IngestionResult } from "@/types/github";
+import type { AnalysisResult } from "@/types/analysis";
 import { LanguageBar } from "@/components/LanguageBar";
 import { FileTree } from "@/components/FileTree";
 import { ArchitectureScores } from "@/components/ArchitectureScores";

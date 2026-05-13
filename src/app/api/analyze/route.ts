@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { GITHUB_API } from "@/properties/github";
 import { analyzeRepository } from "@/lib/analyzer";
-import type { FileNode } from "@/lib/github";
+import type { FileNode } from "@/types/github";
 
 const bodySchema = z.object({
   owner: z.string().min(1).max(100),

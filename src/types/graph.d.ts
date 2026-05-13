@@ -1,5 +1,5 @@
 import type { Node, Edge } from "@xyflow/react";
-import type { GraphNode } from "@/lib/types";
+import type { GraphNode } from "@/types/analysis";
 
 export type NodeData = {
   node: GraphNode;

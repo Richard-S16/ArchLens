@@ -10,7 +10,7 @@ import {
   Tag,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import type { ArchitectureInsight, InsightVariant, InsightCategory } from "@/lib/types";
+import type { ArchitectureInsight, InsightVariant, InsightCategory } from "@/types/analysis";
 
 const VARIANT_CONFIG: Record<
   InsightVariant,

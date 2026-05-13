@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect } from "react";
-import type { ArchitectureScores } from "@/lib/types";
+import type { ArchitectureScores } from "@/types/analysis";
 
 type ScoreKey = keyof ArchitectureScores;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactFlowProvider } from "@xyflow/react";
-import type { AnalysisResult } from "@/lib/types";
+import type { AnalysisResult } from "@/types/analysis";
 import { GraphFlow } from "./DependencyGraph/GraphFlow";
 
 export function DependencyGraph({ result }: { result: AnalysisResult }) {

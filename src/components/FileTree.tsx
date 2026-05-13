@@ -1,5 +1,5 @@
 import { FileCode, FolderOpen } from "lucide-react";
-import type { IngestionResult } from "@/lib/github";
+import type { IngestionResult } from "@/types/github";
 
 type Props = { tree: IngestionResult["tree"] };
 
