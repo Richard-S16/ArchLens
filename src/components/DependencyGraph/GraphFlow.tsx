@@ -55,13 +55,13 @@ export function GraphFlow({
 
   const displayedNodes = useMemo(() => {
     let ns = [...graphNodes];
-    if (showHotspotsOnly) ns = ns.filter((n) => n.isHotspot);
-    if (showCircularOnly) ns = ns.filter((n) => n.hasCircularDep);
+    if (showHotspotsOnly) ns = ns.filter((graphNode) => graphNode.isHotspot);
+    if (showCircularOnly) ns = ns.filter((graphNode) => graphNode.hasCircularDep);
     if (ns.length > MAX_NODES) {
-      ns.sort((a, b) => {
-        if (a.isHotspot !== b.isHotspot) return a.isHotspot ? -1 : 1;
-        if (a.hasCircularDep !== b.hasCircularDep) return a.hasCircularDep ? -1 : 1;
-        return b.inDegree + b.outDegree - (a.inDegree + a.outDegree);
+      ns.sort((nodeA, nodeB) => {
+        if (nodeA.isHotspot !== nodeB.isHotspot) return nodeA.isHotspot ? -1 : 1;
+        if (nodeA.hasCircularDep !== nodeB.hasCircularDep) return nodeA.hasCircularDep ? -1 : 1;
+        return nodeB.inDegree + nodeB.outDegree - (nodeA.inDegree + nodeA.outDegree);
       });
       ns = ns.slice(0, MAX_NODES);
     }
@@ -69,8 +69,8 @@ export function GraphFlow({
   }, [graphNodes, showHotspotsOnly, showCircularOnly]);
 
   const displayedEdges = useMemo(() => {
-    const nodeSet = new Set(displayedNodes.map((n) => n.id));
-    return graphEdges.filter((e) => nodeSet.has(e.source) && nodeSet.has(e.target));
+    const nodeSet = new Set(displayedNodes.map((graphNode) => graphNode.id));
+    return graphEdges.filter((edge) => nodeSet.has(edge.source) && nodeSet.has(edge.target));
   }, [graphEdges, displayedNodes]);
 
   const positions = useMemo(() => computePositions(displayedNodes), [displayedNodes]);
@@ -91,8 +91,8 @@ export function GraphFlow({
     if (!focusedNodeId) return null;
     return new Set(
       displayedEdges
-        .filter((e) => e.source === focusedNodeId || e.target === focusedNodeId)
-        .map((e) => e.id)
+        .filter((edge) => edge.source === focusedNodeId || edge.target === focusedNodeId)
+        .map((edge) => edge.id)
     );
   }, [focusedNodeId, displayedEdges]);
 
@@ -205,11 +205,11 @@ export function GraphFlow({
   }, [displayedNodes]);
 
   const hotspotCount = useMemo(
-    () => graphNodes.filter((n) => n.isHotspot).length,
+    () => graphNodes.filter((graphNode) => graphNode.isHotspot).length,
     [graphNodes]
   );
   const circularCount = useMemo(
-    () => graphNodes.filter((n) => n.hasCircularDep).length,
+    () => graphNodes.filter((graphNode) => graphNode.hasCircularDep).length,
     [graphNodes]
   );
 
@@ -244,7 +244,7 @@ export function GraphFlow({
           <Search style={{ width: 12, height: 12, color: "oklch(0.46 0.03 260)", flexShrink: 0 }} />
           <input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(event) => setSearch(event.target.value)}
             placeholder="Search files…"
             style={{
               background: "none",
@@ -275,21 +275,21 @@ export function GraphFlow({
 
         <FilterPill
           active={showHotspotsOnly}
-          onClick={() => setShowHotspotsOnly((v) => !v)}
+          onClick={() => setShowHotspotsOnly((prev) => !prev)}
           label="🔥 Hotspots"
           count={hotspotCount}
           activeColor="oklch(0.72 0.18 52)"
         />
         <FilterPill
           active={showCircularOnly}
-          onClick={() => setShowCircularOnly((v) => !v)}
+          onClick={() => setShowCircularOnly((prev) => !prev)}
           label="↺ Circular"
           count={circularCount}
           activeColor="oklch(0.68 0.22 27)"
         />
         <FilterPill
           active={showLegend}
-          onClick={() => setShowLegend((v) => !v)}
+          onClick={() => setShowLegend((prev) => !prev)}
           label="Legend"
           count={null}
           activeColor="oklch(0.55 0.18 280)"

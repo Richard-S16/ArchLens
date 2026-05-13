@@ -29,7 +29,7 @@ export function classifyNodeType(path: string): NodeType {
   )
     return "test";
 
-  if (["css", "scss", "sass", "less"].some((e) => ext === e) || lower.includes(".module."))
+  if (["css", "scss", "sass", "less"].some((cssExt) => ext === cssExt) || lower.includes(".module."))
     return "style";
 
   if (
@@ -157,7 +157,7 @@ export function detectFramework(
   tree: FileNode[],
   deps: Record<string, string>
 ): { framework: string | null; frameworkVersion: string | null } {
-  const paths = tree.map((n) => n.path.toLowerCase());
+  const paths = tree.map((node) => node.path.toLowerCase());
 
   const checks: [string, RegExp | null, string | null][] = [
     ["Next.js", null, "next"],
@@ -173,17 +173,17 @@ export function detectFramework(
     ["Solid", null, "solid-js"],
   ];
 
-  if (paths.some((p) => p === "next.config.ts" || p === "next.config.js" || p === "next.config.mjs"))
+  if (paths.some((path) => path === "next.config.ts" || path === "next.config.js" || path === "next.config.mjs"))
     return { framework: "Next.js", frameworkVersion: deps["next"] ?? null };
-  if (paths.some((p) => p === "nuxt.config.ts" || p === "nuxt.config.js"))
+  if (paths.some((path) => path === "nuxt.config.ts" || path === "nuxt.config.js"))
     return { framework: "Nuxt", frameworkVersion: deps["nuxt"] ?? null };
-  if (paths.some((p) => p === "astro.config.mjs" || p === "astro.config.ts"))
+  if (paths.some((path) => path === "astro.config.mjs" || path === "astro.config.ts"))
     return { framework: "Astro", frameworkVersion: deps["astro"] ?? null };
-  if (paths.some((p) => p.includes("svelte.config")))
+  if (paths.some((path) => path.includes("svelte.config")))
     return { framework: "SvelteKit", frameworkVersion: deps["@sveltejs/kit"] ?? null };
-  if (paths.some((p) => p === "remix.config.js" || p === "remix.config.ts"))
+  if (paths.some((path) => path === "remix.config.js" || path === "remix.config.ts"))
     return { framework: "Remix", frameworkVersion: deps["@remix-run/react"] ?? null };
-  if (paths.some((p) => p === "vite.config.ts" || p === "vite.config.js"))
+  if (paths.some((path) => path === "vite.config.ts" || path === "vite.config.js"))
     return { framework: "Vite", frameworkVersion: deps["vite"] ?? null };
 
   for (const [name, , dep] of checks) {
@@ -206,13 +206,13 @@ export function detectArchitecturePattern(tree: FileNode[]): ArchitecturePattern
   const dirStr = [...dirs].join(" ").toLowerCase();
 
   const featureIndicators = ["features", "modules", "domains", "slices", "feature"].filter(
-    (d) => dirStr.includes(d)
+    (dir) => dirStr.includes(dir)
   ).length;
   const atomicIndicators = ["atoms", "molecules", "organisms", "templates"].filter(
-    (d) => dirStr.includes(d)
+    (dir) => dirStr.includes(dir)
   ).length;
   const layerIndicators = ["components", "hooks", "services", "utils", "store", "api", "types"].filter(
-    (d) => dirStr.includes(d)
+    (dir) => dirStr.includes(dir)
   ).length;
 
   if (atomicIndicators >= 2) return "atomic";
@@ -220,8 +220,8 @@ export function detectArchitecturePattern(tree: FileNode[]): ArchitecturePattern
   if (layerIndicators >= 3) return "layer-based";
   if (layerIndicators >= 1) return "mixed";
 
-  const deepFiles = tree.filter((n) => (n.path.match(/\//g) ?? []).length >= 2).length;
-  const totalFiles = tree.filter((n) => n.type === "blob").length;
+  const deepFiles = tree.filter((node) => (node.path.match(/\//g) ?? []).length >= 2).length;
+  const totalFiles = tree.filter((node) => node.type === "blob").length;
   if (totalFiles > 0 && deepFiles / totalFiles < 0.3) return "flat";
 
   return "unknown";
@@ -279,7 +279,7 @@ export function detectTechStack(
 }
 
 export function detectPackageManager(tree: FileNode[]): ArchitectureMetadata["packageManager"] {
-  const paths = tree.map((n) => n.path);
+  const paths = tree.map((node) => node.path);
   if (paths.includes("bun.lockb")) return "bun";
   if (paths.includes("pnpm-lock.yaml")) return "pnpm";
   if (paths.includes("yarn.lock")) return "yarn";
@@ -313,7 +313,7 @@ export function buildDependencyGraph(
       if (isDynamic) dynamicImportCount++;
 
       const edgeId = `${filePath}→${resolved}`;
-      if (!edges.find((e) => e.id === edgeId)) {
+      if (!edges.find((edge) => edge.id === edgeId)) {
         edges.push({
           id: edgeId,
           source: filePath,
@@ -327,9 +327,9 @@ export function buildDependencyGraph(
   }
 
   const degrees = [...inDegree.values()];
-  const mean = degrees.reduce((a, b) => a + b, 0) / (degrees.length || 1);
+  const mean = degrees.reduce((sum, degree) => sum + degree, 0) / (degrees.length || 1);
   const std = Math.sqrt(
-    degrees.reduce((sum, d) => sum + (d - mean) ** 2, 0) / (degrees.length || 1)
+    degrees.reduce((sum, degree) => sum + (degree - mean) ** 2, 0) / (degrees.length || 1)
   );
   const hotspotThreshold = Math.max(HOTSPOT_MIN_INDEGREE, mean + 1.5 * std);
 
@@ -340,8 +340,8 @@ export function buildDependencyGraph(
 
   const activeNodes = new Set<string>([
     ...fileContents.keys(),
-    ...edges.map((e) => e.source),
-    ...edges.map((e) => e.target),
+    ...edges.map((edge) => edge.source),
+    ...edges.map((edge) => edge.target),
   ]);
 
   const nodes: GraphNode[] = [];
@@ -386,7 +386,7 @@ export function detectCircularDependencies(
       if (idx !== -1) {
         const cycle = path.slice(idx);
         const key = [...cycle].sort().join("|");
-        if (!cycles.find((c) => [...c.files].sort().join("|") === key)) {
+        if (!cycles.find((existingCycle) => [...existingCycle.files].sort().join("|") === key)) {
           cycles.push({ files: cycle });
         }
       }
@@ -430,9 +430,9 @@ export function calculateScores(
 function scoreCoupling(nodes: GraphNode[], metadata: ArchitectureMetadata): number {
   if (nodes.length === 0) return 72;
 
-  const avgIn = nodes.reduce((s, n) => s + n.inDegree, 0) / nodes.length;
-  const maxIn = Math.max(...nodes.map((n) => n.inDegree), 0);
-  const hotspotRatio = nodes.filter((n) => n.isHotspot).length / nodes.length;
+  const avgIn = nodes.reduce((sum, node) => sum + node.inDegree, 0) / nodes.length;
+  const maxIn = Math.max(...nodes.map((node) => node.inDegree), 0);
+  const hotspotRatio = nodes.filter((node) => node.isHotspot).length / nodes.length;
   const circularRatio = metadata.circularDependencies.length / Math.max(nodes.length, 1);
 
   let s = 100;
@@ -484,7 +484,7 @@ function scoreScalability(m: ArchitectureMetadata): number {
 function scoreFrontendPerformance(m: ArchitectureMetadata): number {
   let s = 60;
   const perfFrameworks = ["next", "nuxt", "remix", "astro", "sveltekit"];
-  if (m.framework && perfFrameworks.some((f) => m.framework!.toLowerCase().includes(f))) s += 15;
+  if (m.framework && perfFrameworks.some((perfFramework) => m.framework!.toLowerCase().includes(perfFramework))) s += 15;
 
   s += Math.min(10, m.dynamicImportCount * 2);
   if (m.hasTypeScript) s += 5;
@@ -506,7 +506,7 @@ function scoreArchConsistency(nodes: GraphNode[], m: ArchitectureMetadata): numb
   else s -= Math.min(20, m.circularDependencies.length * 3);
 
   const typeVariance =
-    new Set(nodes.filter((n) => n.type !== "other" && n.type !== "test").map((n) => n.type)).size;
+    new Set(nodes.filter((node) => node.type !== "other" && node.type !== "test").map((node) => node.type)).size;
   if (typeVariance > 6) s += 5;
   if (typeVariance > 9) s -= 5;
 
@@ -520,7 +520,7 @@ export function generateInsights(
   scores: ArchitectureScores
 ): ArchitectureInsight[] {
   const insights: ArchitectureInsight[] = [];
-  const add = (i: ArchitectureInsight) => insights.push(i);
+  const add = (insight: ArchitectureInsight) => insights.push(insight);
 
   if (metadata.circularDependencies.length > 0) {
     add({
@@ -544,7 +544,7 @@ export function generateInsights(
       category: "coupling",
       title: "Dependency Hotspot Files Identified",
       description: `${metadata.hotspots.length} files carry disproportionate import load, creating high-blast-radius change points. Splitting these barrel files or introducing dependency injection can reduce coupling.`,
-      affectedFiles: metadata.hotspots.slice(0, 3).map((h) => h.path),
+      affectedFiles: metadata.hotspots.slice(0, 3).map((hotspot) => hotspot.path),
       metric: `${metadata.hotspots.length} hotspots`,
     });
   }
@@ -705,34 +705,34 @@ export function computeTreeMetadata(tree: FileNode[]): {
   hasStorybook: boolean;
   hasLinting: boolean;
 } {
-  const blobs = tree.filter((n) => n.type === "blob");
-  const lowerPaths = blobs.map((n) => n.path.toLowerCase());
+  const blobs = tree.filter((node) => node.type === "blob");
+  const lowerPaths = blobs.map((node) => node.path.toLowerCase());
 
   const testFiles = lowerPaths.filter(
-    (p) => p.includes(".test.") || p.includes(".spec.") || p.includes("__tests__")
+    (path) => path.includes(".test.") || path.includes(".spec.") || path.includes("__tests__")
   ).length;
 
-  const sourceFiles = lowerPaths.filter((p) =>
-    [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"].some((e) => p.endsWith(e))
+  const sourceFiles = lowerPaths.filter((path) =>
+    [".ts", ".tsx", ".js", ".jsx", ".vue", ".svelte"].some((ext) => path.endsWith(ext))
   ).length;
 
   const componentFiles = lowerPaths.filter(
-    (p) => p.endsWith(".tsx") || p.endsWith(".jsx")
+    (path) => path.endsWith(".tsx") || path.endsWith(".jsx")
   ).length;
 
   const typeFiles = lowerPaths.filter(
-    (p) =>
-      p.includes("/types/") ||
-      p.endsWith(".types.ts") ||
-      p.endsWith(".types.tsx") ||
-      p.endsWith(".d.ts")
+    (path) =>
+      path.includes("/types/") ||
+      path.endsWith(".types.ts") ||
+      path.endsWith(".types.tsx") ||
+      path.endsWith(".d.ts")
   ).length;
 
   const utilFiles = lowerPaths.filter(
-    (p) => p.includes("/utils/") || p.includes("/helpers/") || p.includes("/lib/")
+    (path) => path.includes("/utils/") || path.includes("/helpers/") || path.includes("/lib/")
   ).length;
 
-  const depths = blobs.map((n) => (n.path.match(/\//g) ?? []).length);
+  const depths = blobs.map((node) => (node.path.match(/\//g) ?? []).length);
   const maxFolderDepth = depths.length > 0 ? Math.max(...depths) : 0;
 
   const folderCounts = new Map<string, number>();
@@ -742,27 +742,27 @@ export function computeTreeMetadata(tree: FileNode[]): {
   }
   const avgFilesPerFolder =
     folderCounts.size > 0
-      ? [...folderCounts.values()].reduce((a, b) => a + b, 0) / folderCounts.size
+      ? [...folderCounts.values()].reduce((sum, count) => sum + count, 0) / folderCounts.size
       : 0;
 
   const entryPoints = lowerPaths
-    .filter((p) =>
+    .filter((path) =>
       ["src/index.ts", "src/index.tsx", "src/main.ts", "src/main.tsx", "src/app.tsx",
-        "app/page.tsx", "pages/index.tsx", "pages/index.js"].some((ep) => p.endsWith(ep))
+        "app/page.tsx", "pages/index.tsx", "pages/index.js"].some((entryPoint) => path.endsWith(entryPoint))
     )
     .slice(0, 3);
 
-  const hasTypeScript = lowerPaths.some((p) => p.endsWith(".ts") || p.endsWith(".tsx"));
+  const hasTypeScript = lowerPaths.some((path) => path.endsWith(".ts") || path.endsWith(".tsx"));
   const hasTesting = testFiles > 0;
   const hasStorybook = lowerPaths.some(
-    (p) => p.includes(".stories.") || p.includes("/.storybook/")
+    (path) => path.includes(".stories.") || path.includes("/.storybook/")
   );
   const hasLinting = lowerPaths.some(
-    (p) =>
-      p.includes(".eslintrc") ||
-      p.includes("eslint.config") ||
-      p.includes("biome.json") ||
-      p.includes(".oxlintrc")
+    (path) =>
+      path.includes(".eslintrc") ||
+      path.includes("eslint.config") ||
+      path.includes("biome.json") ||
+      path.includes(".oxlintrc")
   );
 
   return {
@@ -788,8 +788,8 @@ export function analyzeRepository(
   fileContents: Map<string, string>,
   packageJson: Record<string, unknown> | null
 ): AnalysisResult {
-  const blobs = tree.filter((n) => n.type === "blob");
-  const allPaths = new Set(blobs.map((n) => n.path));
+  const blobs = tree.filter((node) => node.type === "blob");
+  const allPaths = new Set(blobs.map((node) => node.path));
 
   const deps = (packageJson?.dependencies as Record<string, string>) ?? {};
   const devDeps = (packageJson?.devDependencies as Record<string, string>) ?? {};
@@ -805,15 +805,15 @@ export function analyzeRepository(
   const { nodes, edges, dynamicImportCount } = buildDependencyGraph(fileContents, allPaths);
 
   const circularDependencies = detectCircularDependencies(
-    nodes.map((n) => n.id),
+    nodes.map((node) => node.id),
     edges
   );
 
   const hotspots: HotspotFile[] = nodes
-    .filter((n) => n.isHotspot)
-    .sort((a, b) => b.inDegree - a.inDegree)
+    .filter((node) => node.isHotspot)
+    .sort((nodeA, nodeB) => nodeB.inDegree - nodeA.inDegree)
     .slice(0, 10)
-    .map((n) => ({ path: n.path, inDegree: n.inDegree, outDegree: n.outDegree }));
+    .map((node) => ({ path: node.path, inDegree: node.inDegree, outDegree: node.outDegree }));
 
   const metadata: ArchitectureMetadata = {
     framework,

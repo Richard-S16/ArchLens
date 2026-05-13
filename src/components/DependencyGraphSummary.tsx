@@ -259,20 +259,20 @@ export function DependencyGraphSummary({ result }: Props) {
               Hotspot Files
             </p>
             <div className="space-y-1">
-              {metadata.hotspots.slice(0, 5).map((h, i) => (
+              {metadata.hotspots.slice(0, 5).map((hotspot, index) => (
                 <motion.div
-                  key={h.path}
+                  key={hotspot.path}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: 0.2 + i * 0.05 }}
+                  transition={{ duration: 0.3, delay: 0.2 + index * 0.05 }}
                   className="flex items-center justify-between text-[11px] font-mono"
                 >
                   <span className="text-muted-foreground truncate max-w-40 flex items-center gap-1">
                     <Code2 className="w-2.5 h-2.5 text-amber-400 shrink-0" />
-                    {h.path.split("/").pop()}
+                    {hotspot.path.split("/").pop()}
                   </span>
                   <span className="text-amber-400/80 shrink-0 ml-2">
-                    ↑{h.inDegree}
+                    ↑{hotspot.inDegree}
                   </span>
                 </motion.div>
               ))}

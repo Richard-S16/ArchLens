@@ -17,13 +17,13 @@ export function NodeDetailPanel({
   edges: GraphEdge[];
   onClose: () => void;
 }) {
-  const node = useMemo(() => nodes.find((n) => n.id === nodeId), [nodes, nodeId]);
+  const node = useMemo(() => nodes.find((graphNode) => graphNode.id === nodeId), [nodes, nodeId]);
 
   const imports = useMemo(
     () =>
       edges
-        .filter((e) => e.source === nodeId)
-        .map((e) => nodes.find((n) => n.id === e.target))
+        .filter((edge) => edge.source === nodeId)
+        .map((edge) => nodes.find((graphNode) => graphNode.id === edge.target))
         .filter(Boolean) as GraphNode[],
     [edges, nodeId, nodes]
   );
@@ -31,8 +31,8 @@ export function NodeDetailPanel({
   const importedBy = useMemo(
     () =>
       edges
-        .filter((e) => e.target === nodeId)
-        .map((e) => nodes.find((n) => n.id === e.source))
+        .filter((edge) => edge.target === nodeId)
+        .map((edge) => nodes.find((graphNode) => graphNode.id === edge.source))
         .filter(Boolean) as GraphNode[],
     [edges, nodeId, nodes]
   );

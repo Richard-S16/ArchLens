@@ -20,7 +20,7 @@ import { container, item } from "@/constants/animations";
 import { AnalysisLoadingState } from "@/components/AnalysisLoadingState";
 
 const DependencyGraph = dynamic(
-  () => import("@/components/DependencyGraph").then((m) => ({ default: m.DependencyGraph })),
+  () => import("@/components/DependencyGraph").then((module) => ({ default: module.DependencyGraph })),
   { ssr: false }
 );
 
@@ -61,8 +61,8 @@ export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset
               <p className="mt-1.5 text-muted-foreground max-w-xl">{meta.description}</p>
             )}
             <div className="mt-3 flex flex-wrap gap-2">
-              {meta.topics.slice(0, 8).map((t) => (
-                <Badge key={t} variant="secondary" className="text-xs font-mono">{t}</Badge>
+              {meta.topics.slice(0, 8).map((topic) => (
+                <Badge key={topic} variant="secondary" className="text-xs font-mono">{topic}</Badge>
               ))}
             </div>
           </div>

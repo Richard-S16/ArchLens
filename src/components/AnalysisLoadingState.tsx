@@ -23,11 +23,11 @@ export function AnalysisLoadingState() {
         </p>
       </div>
       <div className="w-full max-w-md space-y-2 mt-2">
-        {[80, 60, 72, 50].map((w, i) => (
+        {[80, 60, 72, 50].map((width, index) => (
           <div
-            key={i}
+            key={index}
             className="h-2 rounded-full bg-(--al-surface-elevated) animate-pulse"
-            style={{ width: `${w}%` }}
+            style={{ width: `${width}%` }}
           />
         ))}
       </div>

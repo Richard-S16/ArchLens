@@ -34,10 +34,10 @@ export function ScoreGauge({
   const circumference = 2 * Math.PI * RADIUS;
 
   const count = useMotionValue(0);
-  const displayVal = useTransform(count, (v) => Math.round(v));
+  const displayVal = useTransform(count, (value) => Math.round(value));
   const dashOffset = useTransform(
     count,
-    (v) => circumference - (v / 100) * circumference
+    (value) => circumference - (value / 100) * circumference
   );
 
   useEffect(() => {

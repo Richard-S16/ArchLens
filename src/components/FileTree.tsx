@@ -5,10 +5,10 @@ type Props = { tree: IngestionResult["tree"] };
 
 export function FileTree({ tree }: Props) {
   const topLevel = tree
-    .filter((n) => !n.path.includes("/"))
+    .filter((node) => !node.path.includes("/"))
     .slice(0, 20);
-  const fileCount = tree.filter((n) => n.type === "blob").length;
-  const dirCount = tree.filter((n) => n.type === "tree").length;
+  const fileCount = tree.filter((node) => node.type === "blob").length;
+  const dirCount = tree.filter((node) => node.type === "tree").length;
 
   return (
     <div className="space-y-2">

@@ -16,9 +16,9 @@ const LANG_COLORS: Record<string, string> = {
 type Props = { languages: Record<string, number> };
 
 export function LanguageBar({ languages }: Props) {
-  const total = Object.values(languages).reduce((a, b) => a + b, 0);
+  const total = Object.values(languages).reduce((sum, bytes) => sum + bytes, 0);
   if (total === 0) return null;
-  const entries = Object.entries(languages).sort(([, a], [, b]) => b - a);
+  const entries = Object.entries(languages).sort(([, bytesA], [, bytesB]) => bytesB - bytesA);
 
   return (
     <div className="space-y-3">

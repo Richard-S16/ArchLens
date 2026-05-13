@@ -11,7 +11,7 @@ const bodySchema = z.object({
 });
 
 function selectFilesToFetch(tree: FileNode[]): string[] {
-  const blobs = tree.filter((n) => n.type === "blob");
+  const blobs = tree.filter((node) => node.type === "blob");
 
   const SOURCE_EXTS = [".ts", ".tsx", ".js", ".jsx", ".mts", ".mjs", ".vue", ".svelte"];
   const SKIP_PATTERNS = [
@@ -28,16 +28,16 @@ function selectFilesToFetch(tree: FileNode[]): string[] {
     "__snapshots__",
   ];
 
-  const sourceFiles = blobs.filter((n) => {
-    const lower = n.path.toLowerCase();
-    if (SKIP_PATTERNS.some((p) => lower.includes(p))) return false;
+  const sourceFiles = blobs.filter((node) => {
+    const lower = node.path.toLowerCase();
+    if (SKIP_PATTERNS.some((pattern) => lower.includes(pattern))) return false;
     return SOURCE_EXTS.some((ext) => lower.endsWith(ext));
   });
 
-  const scored = sourceFiles.map((n) => {
+  const scored = sourceFiles.map((node) => {
     let score = 0;
-    const lower = n.path.toLowerCase();
-    const depth = (n.path.match(/\//g) ?? []).length;
+    const lower = node.path.toLowerCase();
+    const depth = (node.path.match(/\//g) ?? []).length;
 
     if (depth <= 2) score += 10;
     if (depth <= 4) score += 5;
@@ -50,11 +50,11 @@ function selectFilesToFetch(tree: FileNode[]): string[] {
     if (lower.includes("/lib/") || lower.includes("/utils/")) score += 4;
     if (lower.includes("/api/")) score += 3;
 
-    return { node: n, score };
+    return { node, score };
   });
 
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, 60).map((s) => s.node.path);
+  scored.sort((scoredA, scoredB) => scoredB.score - scoredA.score);
+  return scored.slice(0, 60).map((scoredFile) => scoredFile.node.path);
 }
 
 
@@ -86,9 +86,9 @@ export async function POST(request: NextRequest) {
     const tree: FileNode[] = (
       (treeData.tree ?? []) as Array<{ path: string; type: string; size?: number }>
     )
-      .filter((n) => n.type === "blob" || n.type === "tree")
+      .filter((rawNode) => rawNode.type === "blob" || rawNode.type === "tree")
       .slice(0, 2000)
-      .map((n) => ({ path: n.path, type: n.type as "blob" | "tree", size: n.size }));
+      .map((rawNode) => ({ path: rawNode.path, type: rawNode.type as "blob" | "tree", size: rawNode.size }));
 
     const pkgContent = await fetchFileContent(owner, repo, "package.json", branch);
     let packageJson: Record<string, unknown> | null = null;

@@ -14,14 +14,14 @@ import { InsightCard } from "@/components/InsightCard";
 
 export function InsightCards({ insights }: { insights: ArchitectureInsight[] }) {
   const sorted = [...insights].sort(
-    (a, b) =>
-      (SEVERITY_ORDER[a.severity] ?? 9) - (SEVERITY_ORDER[b.severity] ?? 9)
+    (insightA, insightB) =>
+      (SEVERITY_ORDER[insightA.severity] ?? 9) - (SEVERITY_ORDER[insightB.severity] ?? 9)
   );
 
-  const dangerCount = insights.filter((i) => i.variant === "danger").length;
-  const warningCount = insights.filter((i) => i.variant === "warning").length;
-  const successCount = insights.filter((i) => i.variant === "success").length;
-  const infoCount = insights.filter((i) => i.variant === "info").length;
+  const dangerCount = insights.filter((insight) => insight.variant === "danger").length;
+  const warningCount = insights.filter((insight) => insight.variant === "warning").length;
+  const successCount = insights.filter((insight) => insight.variant === "success").length;
+  const infoCount = insights.filter((insight) => insight.variant === "info").length;
 
   return (
     <div className="space-y-4">

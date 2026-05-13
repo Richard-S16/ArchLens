@@ -54,13 +54,13 @@ export function InsightCard({
 
       {insight.affectedFiles && insight.affectedFiles.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pl-10">
-          {insight.affectedFiles.map((f) => (
+          {insight.affectedFiles.map((filePath) => (
             <span
-              key={f}
+              key={filePath}
               className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded bg-(--al-surface-elevated) text-muted-foreground border border-border/30"
             >
               <FileCode className="w-2.5 h-2.5" />
-              {f.split("/").pop()}
+              {filePath.split("/").pop()}
             </span>
           ))}
         </div>

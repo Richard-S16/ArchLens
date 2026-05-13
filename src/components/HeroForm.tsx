@@ -123,7 +123,7 @@ export function HeroForm() {
           <Input
             ref={inputRef}
             value={url}
-            onChange={(e) => { setUrl(e.target.value); setError(null); }}
+            onChange={(event) => { setUrl(event.target.value); setError(null); }}
             onKeyDown={handleKeyDown}
             placeholder="https://github.com/owner/repository"
             className="border-0 bg-transparent pl-12 pr-4 py-6 text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0"
