@@ -127,11 +127,7 @@ function MiniGraphPreview({ nodeCount }: { nodeCount: number }) {
         ))}
       </svg>
 
-      <div className="absolute inset-x-0 bottom-0 flex justify-center pb-1.5">
-        <span className="text-[9px] font-mono text-muted-foreground/50">
-          Phase 3 preview
-        </span>
-      </div>
+
     </div>
   );
 }

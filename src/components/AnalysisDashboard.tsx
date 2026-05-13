@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import {
   GitBranch, Star, GitFork, Code2, ArrowLeft, FileCode, Globe,
   Loader2, BrainCircuit, Network,
@@ -15,6 +16,11 @@ import { FileTree } from "@/components/FileTree";
 import { ArchitectureScores } from "@/components/ArchitectureScores";
 import { InsightCards } from "@/components/InsightCards";
 import { DependencyGraphSummary } from "@/components/DependencyGraphSummary";
+
+const DependencyGraph = dynamic(
+  () => import("@/components/DependencyGraph").then((m) => ({ default: m.DependencyGraph })),
+  { ssr: false }
+);
 
 type Props = {
   result: IngestionResult;
@@ -241,20 +247,15 @@ export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset
               </CardContent>
             </Card>
 
-            <Card className="bg-linear-to-br from-(--al-blue)/8 to-(--al-purple)/8 border-(--al-blue)/20 hover:border-(--al-blue)/35 transition-colors">
-              <CardContent className="py-5 flex items-center justify-between flex-wrap gap-4">
-                <div>
-                  <p className="font-semibold text-foreground flex items-center gap-2">
-                    <Network className="w-4 h-4 text-(--al-blue)" />
-                    Interactive Dependency Graph — Phase 3
-                  </p>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    Full force-directed graph with GPU rendering, zoom/pan, hotspot highlighting & dependency tracing
-                  </p>
-                </div>
-                <Badge className="bg-(--al-blue)/15 text-(--al-blue) border-(--al-blue)/25 hover:bg-(--al-blue)/25 shrink-0">
-                  Coming Next
-                </Badge>
+            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <Network className="w-3.5 h-3.5 text-(--al-blue)" />
+                  Interactive Dependency Graph
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0 overflow-hidden rounded-b-xl">
+                <DependencyGraph result={analysisResult} />
               </CardContent>
             </Card>
           </motion.div>
