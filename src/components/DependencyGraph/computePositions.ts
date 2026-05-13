@@ -1,5 +1,5 @@
 import type { GraphNode } from "@/types/analysis";
-import { LAYER_ORDER, NODE_W, NODE_H, H_GAP, V_GAP, ROW_GAP, NODES_PER_ROW } from "@/properties/dependencyGraph";
+import { LAYER_ORDER, NODE_W, NODE_H, H_GAP, V_GAP, ROW_GAP, NODES_PER_ROW } from "@/constants/dependencyGraph";
 
 export function computePositions(
   nodes: GraphNode[]

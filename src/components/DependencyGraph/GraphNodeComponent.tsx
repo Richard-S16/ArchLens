@@ -1,7 +1,7 @@
 "use client";
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
-import { TYPE_CONFIG, NODE_W, NODE_H } from "@/properties/dependencyGraph";
+import { TYPE_CONFIG, NODE_W, NODE_H } from "@/constants/dependencyGraph";
 import type { RFNode } from "@/types/graph";
 
 export function GraphNodeComponent({ data, selected }: NodeProps<RFNode>) {

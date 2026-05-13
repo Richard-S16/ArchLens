@@ -1,23 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { repoUrlSchema, parseRepoUrl } from "@/lib/github";
 import type { IngestionResult, FileNode } from "@/types/github";
-import { GITHUB_API } from "@/properties/github";
-
-async function githubFetch(path: string) {
-  const token = process.env.GITHUB_TOKEN;
-  const headers: HeadersInit = {
-    Accept: "application/vnd.github+json",
-    "X-GitHub-Api-Version": "2022-11-28",
-  };
-  if (token) headers["Authorization"] = `Bearer ${token}`;
-
-  const res = await fetch(`${GITHUB_API}${path}`, { headers, next: { revalidate: 300 } });
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`GitHub API ${res.status}: ${body}`);
-  }
-  return res.json();
-}
+import { githubFetch } from "@/lib/githubClient";
 
 export async function POST(request: NextRequest) {
   let body: unknown;

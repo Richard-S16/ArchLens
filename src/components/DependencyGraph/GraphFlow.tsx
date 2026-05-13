@@ -28,7 +28,7 @@ import {
   LAYER_ORDER,
   LAYER_LABELS,
   LAYER_COLORS,
-} from "@/properties/dependencyGraph";
+} from "@/constants/dependencyGraph";
 import type { RFNode, RFEdge, LabelNode, NodeData } from "@/types/graph";
 import { computePositions } from "./computePositions";
 import { GraphNodeComponent } from "./GraphNodeComponent";
