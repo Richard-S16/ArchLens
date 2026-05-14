@@ -1,3 +1,5 @@
+<img width="1134" height="1079" alt="Home" src="https://github.com/user-attachments/assets/98f8c8c0-c717-475e-8c15-c4ae012d11e4" />
+
 # ArchLens
 
 **AI-Powered Repository Architecture Intelligence Platform**
