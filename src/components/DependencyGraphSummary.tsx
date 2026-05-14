@@ -48,12 +48,12 @@ function StatItem({
       transition={{ duration: 0.35, delay: delay ?? 0 }}
       className="flex items-center justify-between py-2 border-b border-border/20 last:border-0"
     >
-      <span className="flex items-center gap-2 text-xs text-muted-foreground">
+      <span className="flex items-center gap-2 text-sm text-muted-foreground">
         <Icon className={`w-3.5 h-3.5 ${accent ? colors[accent] : ""}`} />
         {label}
       </span>
       <span
-        className={`text-xs font-mono font-semibold ${
+        className={`text-sm font-mono font-semibold ${
           accent ? colors[accent] : "text-foreground/80"
         }`}
       >
@@ -151,7 +151,7 @@ export function DependencyGraphSummary({ result }: Props) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="space-y-1">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+        <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
           Graph Statistics
         </p>
 
@@ -221,7 +221,7 @@ export function DependencyGraphSummary({ result }: Props) {
             <p className="text-2xl font-bold text-foreground/90">
               {result.parsedFileCount}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               of {metadata.totalFiles} total
             </p>
           </div>
@@ -229,7 +229,7 @@ export function DependencyGraphSummary({ result }: Props) {
 
         {metadata.techStack.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
               <Package className="w-3 h-3" />
               Detected Stack
             </p>
@@ -251,7 +251,7 @@ export function DependencyGraphSummary({ result }: Props) {
 
         {metadata.hotspots.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-1.5">
               <Flame className="w-3 h-3 text-amber-400" />
               Hotspot Files
             </p>

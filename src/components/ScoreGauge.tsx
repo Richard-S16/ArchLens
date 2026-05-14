@@ -58,7 +58,10 @@ export function ScoreGauge({
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay, ease: "easeOut" }}
-      className="flex flex-col items-center gap-3 group"
+      whileHover={{ scale: 1.04, transition: { duration: 0.15 } }}
+      className="flex flex-col items-center gap-3 group cursor-default"
+      role="figure"
+      aria-label={`${label}: ${value} out of 100, grade ${grade}`}
     >
       <div className="relative">
         <svg
@@ -108,7 +111,7 @@ export function ScoreGauge({
       </div>
 
       <div className="text-center">
-        <p className="text-xs font-semibold text-foreground/80">{label}</p>
+        <p className="text-sm font-semibold text-foreground/80">{label}</p>
         <p className="text-[10px] text-muted-foreground mt-0.5 leading-snug max-w-22.5">
           {description}
         </p>

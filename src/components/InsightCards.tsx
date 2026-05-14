@@ -29,7 +29,7 @@ export function InsightCards({ insights }: { insights: ArchitectureInsight[] }) 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap"
+        className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap"
       >
         <span className="flex items-center gap-1.5">
           <Tag className="w-3 h-3" />

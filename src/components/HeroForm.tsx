@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, GitBranch, ArrowRight, Loader2 } from "lucide-react";
+import { Search, GitBranch, ArrowRight, Loader2, CheckCircle2, Circle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,80 @@ import type { AnalysisResult } from "@/types/analysis";
 import { toast } from "sonner";
 import { AnalysisDashboard } from "./AnalysisDashboard";
 import { EXAMPLE_REPOS } from "@/constants/heroForm";
+
+const INGEST_STEPS = [
+  { id: "connect", label: "Connecting to GitHub" },
+  { id: "structure", label: "Parsing repository structure" },
+  { id: "languages", label: "Detecting languages & metadata" },
+  { id: "graph", label: "Building dependency graph" },
+];
+
+function IngestLoadingState() {
+  const [currentStep, setCurrentStep] = useState(0);
+
+  useEffect(() => {
+    if (currentStep >= INGEST_STEPS.length - 1) return;
+    const timer = setTimeout(() => setCurrentStep((prev) => prev + 1), 1600);
+    return () => clearTimeout(timer);
+  }, [currentStep]);
+
+  return (
+    <div className="flex flex-col items-center gap-5 py-6">
+      <div className="relative" aria-hidden="true">
+        <div className="w-11 h-11 rounded-full border-2 border-(--al-blue)/20 border-t-(--al-blue) animate-spin" />
+        <GitBranch className="absolute inset-0 m-auto w-4.5 h-4.5 text-(--al-blue)" />
+      </div>
+      <div className="w-full max-w-xs space-y-2.5">
+        {INGEST_STEPS.map((step, i) => {
+          const isDone = i < currentStep;
+          const isActive = i === currentStep;
+          return (
+            <motion.div
+              key={step.id}
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: i * 0.07 }}
+              className="flex items-center gap-2.5"
+            >
+              <AnimatePresence mode="wait">
+                {isDone ? (
+                  <motion.span
+                    key="done"
+                    initial={{ scale: 0.5 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", stiffness: 400 }}
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
+                  </motion.span>
+                ) : isActive ? (
+                  <motion.span key="active">
+                    <Loader2 className="w-3.5 h-3.5 text-(--al-blue) animate-spin shrink-0" aria-hidden="true" />
+                  </motion.span>
+                ) : (
+                  <motion.span key="pending">
+                    <Circle className="w-3.5 h-3.5 text-border/30 shrink-0" aria-hidden="true" />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+              <span
+                className={`text-sm transition-all duration-300 ${
+                  isDone
+                    ? "text-muted-foreground/45 line-through decoration-muted-foreground/25"
+                    : isActive
+                    ? "text-foreground/90 font-medium"
+                    : "text-muted-foreground/30"
+                }`}
+              >
+                {step.label}
+              </span>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 export function HeroForm() {
   const [url, setUrl] = useState("");
@@ -165,7 +239,7 @@ export function HeroForm() {
         transition={{ duration: 0.4, delay: 0.8 }}
         className="mt-5 flex flex-wrap gap-2 justify-center"
       >
-        <span className="text-xs text-muted-foreground/60 self-center">Try:</span>
+        <span className="text-sm text-muted-foreground/60 self-center">Try:</span>
         {EXAMPLE_REPOS.map((repo) => {
           const short = repo.replace("https://github.com/", "");
           return (
@@ -173,7 +247,7 @@ export function HeroForm() {
               key={repo}
               onClick={() => { setUrl(repo); handleSubmit(repo); }}
               disabled={loading}
-              className="cursor-pointer text-xs px-3 py-1.5 rounded-full border border-border/50 bg-(--al-surface) hover:border-(--al-blue)/50 hover:bg-(--al-surface-elevated) text-muted-foreground hover:text-foreground transition-all duration-200 font-mono disabled:opacity-50"
+              className="cursor-pointer text-sm px-3 py-1.5 rounded-full border border-border/50 bg-(--al-surface) hover:border-(--al-blue)/50 hover:bg-(--al-surface-elevated) text-muted-foreground hover:text-foreground transition-all duration-200 font-mono disabled:opacity-50"
             >
               {short}
             </button>
@@ -188,17 +262,11 @@ export function HeroForm() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             className="mt-8 overflow-hidden"
+            role="status"
+            aria-live="polite"
+            aria-label="Repository ingestion in progress"
           >
-            <div className="flex flex-col items-center gap-4 py-6">
-              <div className="relative">
-                <div className="w-12 h-12 rounded-full border-2 border-(--al-blue)/20 border-t-(--al-blue) animate-spin" />
-                <GitBranch className="absolute inset-0 m-auto w-5 h-5 text-(--al-blue)" />
-              </div>
-              <div className="text-center space-y-1">
-                <p className="text-sm text-foreground/80 font-medium">Analyzing repository…</p>
-                <p className="text-xs text-muted-foreground">Fetching structure, languages & metadata</p>
-              </div>
-            </div>
+            <IngestLoadingState />
           </motion.div>
         )}
       </AnimatePresence>

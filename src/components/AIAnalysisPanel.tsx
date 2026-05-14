@@ -93,7 +93,7 @@ function RecommendationCard({
     >
       <div className="flex flex-col items-center gap-1.5 pt-0.5 shrink-0">
         <div
-          className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold font-mono border"
+          className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold font-mono border"
           style={{
             background: `${priorityCfg.color}18`,
             borderColor: `${priorityCfg.color}35`,
@@ -121,7 +121,7 @@ function RecommendationCard({
           </div>
         </div>
 
-        <p className="text-xs text-muted-foreground leading-relaxed">{rec.rationale}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed">{rec.rationale}</p>
 
         <div className="flex items-center gap-4 pt-1">
           <div className="flex items-center gap-1.5">
@@ -203,7 +203,7 @@ export function AIAnalysisPanel({ aiAnalysis }: { aiAnalysis: AIAnalysis }) {
             <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider mb-2">
               Technical Debt
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {aiAnalysis.technicalDebtAssessment}
             </p>
           </div>
@@ -221,7 +221,7 @@ export function AIAnalysisPanel({ aiAnalysis }: { aiAnalysis: AIAnalysis }) {
             >
               <CheckCircle2 className="w-3 h-3 text-[oklch(0.72_0.17_160)]" />
             </div>
-            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">
               Strengths
             </h4>
           </div>
@@ -231,7 +231,7 @@ export function AIAnalysisPanel({ aiAnalysis }: { aiAnalysis: AIAnalysis }) {
                 <div
                   className="w-1 h-1 rounded-full mt-1.5 shrink-0 bg-[oklch(0.72_0.17_160)]"
                 />
-                <span className="text-xs text-muted-foreground leading-relaxed">{strength}</span>
+                <span className="text-sm text-muted-foreground leading-relaxed">{strength}</span>
               </li>
             ))}
           </ul>
@@ -247,7 +247,7 @@ export function AIAnalysisPanel({ aiAnalysis }: { aiAnalysis: AIAnalysis }) {
             >
               <AlertTriangle className="w-3 h-3 text-[oklch(0.68_0.22_27)]" />
             </div>
-            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">
               Critical Risks
             </h4>
           </div>
@@ -257,7 +257,7 @@ export function AIAnalysisPanel({ aiAnalysis }: { aiAnalysis: AIAnalysis }) {
                 <div
                   className="w-1 h-1 rounded-full mt-1.5 shrink-0 bg-[oklch(0.68_0.22_27)]"
                 />
-                <span className="text-xs text-muted-foreground leading-relaxed">{risk}</span>
+                <span className="text-sm text-muted-foreground leading-relaxed">{risk}</span>
               </li>
             ))}
           </ul>
@@ -268,7 +268,7 @@ export function AIAnalysisPanel({ aiAnalysis }: { aiAnalysis: AIAnalysis }) {
         <motion.div variants={item} className="space-y-3">
           <div className="flex items-center gap-2">
             <Zap className="w-3.5 h-3.5 text-[oklch(0.55_0.18_280)]" />
-            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">
+            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">
               Recommendations
             </h4>
             <ArrowUpRight className="w-3 h-3 text-muted-foreground/40" />

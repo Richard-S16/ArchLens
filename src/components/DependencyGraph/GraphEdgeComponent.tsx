@@ -51,6 +51,7 @@ export function GraphEdgeComponent({
         id={id}
         path={edgePath}
         markerEnd={dimmed ? undefined : markerEnd}
+        interactionWidth={0}
         style={{
           stroke: strokeColor,
           strokeWidth: selected ? 2.5 : 1.2,

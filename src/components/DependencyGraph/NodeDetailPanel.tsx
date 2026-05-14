@@ -52,7 +52,7 @@ export function NodeDetailPanel({
         >
           <div className="flex items-start justify-between mb-2.5 gap-2">
             <div className="min-w-0 flex-1">
-              <span className="font-mono text-xs font-bold text-[oklch(0.93_0_0)] block break-all leading-[1.35]">
+              <span className="font-mono text-sm font-bold text-[oklch(0.93_0_0)] block break-all leading-[1.35]">
                 {node.label}
               </span>
               <span className="text-[10px] text-[oklch(0.46_0.03_260)] break-all block mt-0.5 leading-[1.4]">

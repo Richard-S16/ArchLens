@@ -3,6 +3,26 @@
 @import "shadcn/tailwind.css";
 @import "@xyflow/react/dist/style.css";
 
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -97,10 +117,86 @@
   }
   body {
     @apply bg-background text-foreground;
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.22 0.02 260) var(--background);
   }
   html {
     @apply font-sans;
+    scroll-behavior: smooth;
   }
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.22 0.02 260);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: oklch(0.32 0.04 260);
+  }
+  :focus-visible {
+    outline: 2px solid var(--al-blue);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.skip-link {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  background: var(--al-blue);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: top 0.15s ease;
+  white-space: nowrap;
+  box-shadow: 0 4px 24px oklch(0.62 0.22 240 / 40%);
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+.shimmer-text {
+  background: linear-gradient(
+    90deg,
+    var(--al-blue) 0%,
+    var(--al-purple) 40%,
+    var(--al-blue) 80%,
+    var(--al-purple) 100%
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 4s linear infinite;
+}
+
+.glow-blue {
+  box-shadow: 0 0 20px var(--al-glow-blue), 0 0 60px oklch(0.62 0.22 240 / 8%);
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
 .react-flow__node {

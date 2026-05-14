@@ -21,7 +21,7 @@ export function ArchitectureScores({ scores }: { scores: ArchitectureScores }) {
         className="flex items-center justify-between px-4 py-3 rounded-xl border border-border/40 bg-(--al-surface-elevated)/50"
       >
         <div>
-          <p className="text-xs text-muted-foreground uppercase tracking-widest font-mono">
+          <p className="text-sm text-muted-foreground uppercase tracking-widest font-mono">
             Overall Health
           </p>
           <p

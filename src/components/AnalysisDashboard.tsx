@@ -41,7 +41,8 @@ export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset
         variant="ghost"
         size="sm"
         onClick={onReset}
-        className="mb-6 text-muted-foreground hover:text-foreground -ml-1"
+        className="mb-6 text-muted-foreground hover:text-foreground cursor-pointer -ml-1 hover:-translate-x-0.5 transition-all duration-150"
+        aria-label="Go back and analyze another repository"
       >
         <ArrowLeft className="w-4 h-4 mr-1" /> Analyze another
       </Button>
@@ -63,7 +64,7 @@ export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset
             )}
             <div className="mt-3 flex flex-wrap gap-2">
               {meta.topics.slice(0, 8).map((topic) => (
-                <Badge key={topic} variant="secondary" className="text-xs font-mono">{topic}</Badge>
+                <Badge key={topic} variant="secondary" className="text-sm font-mono">{topic}</Badge>
               ))}
             </div>
           </div>
@@ -200,7 +201,7 @@ export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset
                     </div>
                     <div>
                       <p className="text-sm font-semibold text-emerald-400">No architecture issues detected</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
+                      <p className="text-sm text-muted-foreground mt-0.5">
                         This repository follows good architectural practices — well-structured, low coupling, and no circular dependencies.
                       </p>
                     </div>

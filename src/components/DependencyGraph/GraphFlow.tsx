@@ -320,7 +320,7 @@ export function GraphFlow({
         )}
       </AnimatePresence>
 
-      <div className="absolute bottom-14 left-3 z-10 bg-[oklch(0.10_0.014_260/92%)] backdrop-blur-[14px] border border-[oklch(1_0_0/8%)] rounded-[10px] py-1.5 px-3.5 flex gap-4 shadow-[0_4px_16px_oklch(0_0_0/30%)]">
+      <div className="absolute bottom-14 left-16 z-10 bg-[oklch(0.10_0.014_260/92%)] backdrop-blur-[14px] border border-[oklch(1_0_0/8%)] rounded-[10px] py-1.5 px-3.5 flex gap-4 shadow-[0_4px_16px_oklch(0_0_0/30%)]">
         {[
           { label: "nodes", value: displayedNodes.length, color: "oklch(0.62 0.22 240)" },
           { label: "edges", value: displayedEdges.length, color: "oklch(0.55 0.18 280)" },

@@ -14,10 +14,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ArchLens — Repository Architecture Intelligence",
+  title: "ArchLens: Repository Architecture Intelligence",
   description:
     "AI-powered repository architecture analysis. Visualize dependencies, detect technical debt, and get AI-powered architectural recommendations.",
-  keywords: ["architecture", "repository", "analysis", "AI", "visualization"],
+  keywords: ["architecture", "repository", "analysis", "AI", "visualization", "dependency graph", "technical debt"],
+  openGraph: {
+    title: "ArchLens: Repository Architecture Intelligence",
+    description:
+      "Paste a GitHub URL. ArchLens maps your repository structure, visualizes dependencies, and surfaces architectural insights powered by AI.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ArchLens: Repository Architecture Intelligence",
+    description:
+      "Paste a GitHub URL. ArchLens maps your repository structure, visualizes dependencies, and surfaces architectural insights powered by AI.",
+  },
 };
 
 export default function RootLayout({
@@ -36,3 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
+

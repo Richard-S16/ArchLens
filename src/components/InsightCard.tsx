@@ -21,7 +21,8 @@ export function InsightCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.05 * index, ease: "easeOut" }}
-      className={`relative flex flex-col gap-3 p-4 rounded-xl border bg-(--al-surface) shadow-md ${cfg.border} ${cfg.glow} hover:border-opacity-50 transition-all duration-300 group`}
+      whileHover={{ y: -2, transition: { duration: 0.15 } }}
+      className={`relative flex flex-col gap-3 p-4 rounded-xl border bg-(--al-surface) shadow-md ${cfg.border} ${cfg.glow} transition-all duration-200 group cursor-default`}
     >
       <div className="flex items-start gap-3">
         <div
@@ -32,7 +33,7 @@ export function InsightCard({
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1">
+          <div className="flex items-center gap-2 flex-wrap mb-4">
             <Badge className={`text-[10px] px-1.5 py-0 font-mono ${cfg.badge}`}>
               {CATEGORY_LABELS[insight.category]}
             </Badge>
@@ -48,7 +49,7 @@ export function InsightCard({
         </div>
       </div>
 
-      <p className="text-xs text-muted-foreground leading-relaxed pl-10">
+      <p className="text-sm text-muted-foreground leading-relaxed pl-10">
         {insight.description}
       </p>
 
