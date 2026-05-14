@@ -1,6 +1,10 @@
+const MAX_FILE_SIZE = 512 * 1024;
+
 export function extractImports(
   content: string
 ): { path: string; isDynamic: boolean }[] {
+  if (content.length > MAX_FILE_SIZE) return [];
+
   const seen = new Set<string>();
   const results: { path: string; isDynamic: boolean }[] = [];
 

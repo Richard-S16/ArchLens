@@ -2,8 +2,28 @@ import { NextRequest, NextResponse } from "next/server";
 import { repoUrlSchema, parseRepoUrl } from "@/lib/github";
 import type { IngestionResult, FileNode } from "@/types/github";
 import { githubFetch } from "@/lib/githubClient";
+import { checkRateLimit, extractClientIP } from "@/lib/rateLimiter";
+
+const MAX_BODY_BYTES = 2048;
 
 export async function POST(request: NextRequest) {
+  const ip = extractClientIP(request);
+  const { allowed, retryAfterSeconds } = checkRateLimit(ip);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Rate limit exceeded. Try again shortly." },
+      {
+        status: 429,
+        headers: { "Retry-After": String(retryAfterSeconds) },
+      }
+    );
+  }
+
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -22,11 +42,14 @@ export async function POST(request: NextRequest) {
   const { owner, repo } = parseRepoUrl(parsed.data);
 
   try {
+    const encodedOwner = encodeURIComponent(owner);
+    const encodedRepo = encodeURIComponent(repo);
+
     const [repoData, langsData, treeData] = await Promise.all([
-      githubFetch(`/repos/${owner}/${repo}`),
-      githubFetch(`/repos/${owner}/${repo}/languages`),
+      githubFetch(`/repos/${encodedOwner}/${encodedRepo}`),
+      githubFetch(`/repos/${encodedOwner}/${encodedRepo}/languages`),
       githubFetch(
-        `/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`
+        `/repos/${encodedOwner}/${encodedRepo}/git/trees/HEAD?recursive=1`
       ),
     ]);
 
@@ -56,13 +79,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    if (message.includes("404")) {
-      return NextResponse.json(
-        { error: "Repository not found or is private" },
-        { status: 404 }
-      );
-    }
-    return NextResponse.json({ error: message }, { status: 500 });
+    const code = err instanceof Error ? err.message : "GITHUB_API_ERROR";
+    const clientErrors: Record<string, { status: number; message: string }> = {
+      NOT_FOUND: { status: 404, message: "Repository not found or is private" },
+      FORBIDDEN: { status: 403, message: "Access denied to repository" },
+      RATE_LIMITED: { status: 429, message: "GitHub rate limit reached. Try again later." },
+    };
+    const response = clientErrors[code] ?? { status: 500, message: "Ingestion failed. Please try again." };
+    return NextResponse.json({ error: response.message }, { status: response.status });
   }
 }
