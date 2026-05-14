@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
   GitBranch, Star, GitFork, Code2, ArrowLeft, FileCode, Globe,
-  Loader2, BrainCircuit, Network,
+  Loader2, BrainCircuit, Network, Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,7 @@ import { InsightCards } from "@/components/InsightCards";
 import { DependencyGraphSummary } from "@/components/DependencyGraphSummary";
 import { container, item } from "@/constants/animations";
 import { AnalysisLoadingState } from "@/components/AnalysisLoadingState";
+import { AIAnalysisPanel } from "@/components/AIAnalysisPanel";
 
 const DependencyGraph = dynamic(
   () => import("@/components/DependencyGraph").then((module) => ({ default: module.DependencyGraph })),
@@ -76,7 +77,7 @@ export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset
               href={`https://github.com/${meta.fullName}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:text-(--al-blue) transition-colors"
+              className="flex items-center gap-1.5 cursor-pointer hover:text-(--al-blue) transition-colors"
             >
               <Globe className="w-4 h-4" />GitHub
             </a>
@@ -207,6 +208,20 @@ export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset
                 )}
               </CardContent>
             </Card>
+
+            {analysisResult.aiAnalysis && (
+              <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                    <Sparkles className="w-3.5 h-3.5 text-(--al-purple)" />
+                    AI Intelligence Report
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <AIAnalysisPanel aiAnalysis={analysisResult.aiAnalysis} />
+                </CardContent>
+              </Card>
+            )}
 
             <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
               <CardHeader className="pb-3">

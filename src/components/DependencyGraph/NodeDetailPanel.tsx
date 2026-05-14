@@ -48,84 +48,29 @@ export function NodeDetailPanel({
           animate={{ opacity: 1, x: 0, scale: 1 }}
           exit={{ opacity: 0, x: 16, scale: 0.97 }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          style={{
-            position: "absolute",
-            top: 12,
-            right: 12,
-            width: 252,
-            zIndex: 20,
-            background: "oklch(0.10 0.014 260 / 96%)",
-            backdropFilter: "blur(16px)",
-            border: "1px solid oklch(1 0 0 / 9%)",
-            borderRadius: 14,
-            padding: "14px 14px 16px",
-            boxShadow: "0 12px 40px oklch(0 0 0 / 50%), inset 0 1px 0 oklch(1 0 0 / 7%)",
-          }}
+          className="absolute top-3 right-3 w-63 z-20 bg-[oklch(0.10_0.014_260/96%)] backdrop-blur-lg border border-[oklch(1_0_0/9%)] rounded-[14px] p-3.5 pb-4 shadow-[0_12px_40px_oklch(0_0_0/50%),inset_0_1px_0_oklch(1_0_0/7%)]"
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              justifyContent: "space-between",
-              marginBottom: 10,
-              gap: 8,
-            }}
-          >
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <span
-                style={{
-                  fontFamily: "var(--font-geist-mono, monospace)",
-                  fontSize: 12,
-                  fontWeight: 700,
-                  color: "oklch(0.93 0 0)",
-                  display: "block",
-                  wordBreak: "break-all",
-                  lineHeight: 1.35,
-                }}
-              >
+          <div className="flex items-start justify-between mb-2.5 gap-2">
+            <div className="min-w-0 flex-1">
+              <span className="font-mono text-xs font-bold text-[oklch(0.93_0_0)] block break-all leading-[1.35]">
                 {node.label}
               </span>
-              <span
-                style={{
-                  fontSize: 10,
-                  color: "oklch(0.46 0.03 260)",
-                  wordBreak: "break-all",
-                  display: "block",
-                  marginTop: 2,
-                  lineHeight: 1.4,
-                }}
-              >
+              <span className="text-[10px] text-[oklch(0.46_0.03_260)] break-all block mt-0.5 leading-[1.4]">
                 {node.path}
               </span>
             </div>
             <button
               onClick={onClose}
-              style={{
-                background: "oklch(0.18 0.015 260)",
-                border: "1px solid oklch(1 0 0 / 8%)",
-                cursor: "pointer",
-                padding: "4px 5px",
-                borderRadius: 7,
-                flexShrink: 0,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "oklch(0.50 0.03 260)",
-              }}
+              className="bg-[oklch(0.18_0.015_260)] border border-[oklch(1_0_0/8%)] cursor-pointer p-[4px_5px] rounded-[7px] shrink-0 flex items-center justify-center text-[oklch(0.50_0.03_260)] transition-[color,background] duration-150"
             >
-              <X style={{ width: 12, height: 12 }} />
+              <X className="w-3 h-3" />
             </button>
           </div>
 
-          <div style={{ display: "flex", gap: 5, flexWrap: "wrap", marginBottom: 10 }}>
+          <div className="flex gap-1.25 flex-wrap mb-2.5">
             <span
+              className="text-[9px] font-bold uppercase tracking-[0.06em] py-0.75 px-2 rounded-[6px]"
               style={{
-                fontSize: 9,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                padding: "3px 8px",
-                borderRadius: 6,
                 color: cfg.color,
                 background: `color-mix(in oklch, ${cfg.color} 14%, transparent)`,
                 border: `1px solid color-mix(in oklch, ${cfg.color} 28%, transparent)`,
@@ -134,49 +79,18 @@ export function NodeDetailPanel({
               {cfg.label}
             </span>
             {node.isHotspot && (
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  padding: "3px 8px",
-                  borderRadius: 6,
-                  color: "oklch(0.72 0.18 52)",
-                  background: "oklch(0.72 0.18 52 / 12%)",
-                  border: "1px solid oklch(0.72 0.18 52 / 28%)",
-                }}
-              >
+              <span className="text-[9px] font-bold uppercase tracking-[0.06em] py-0.75 px-2 rounded-[6px] text-[oklch(0.72_0.18_52)] bg-[oklch(0.72_0.18_52/12%)] border border-[oklch(0.72_0.18_52/28%)]">
                 🔥 Hotspot
               </span>
             )}
             {node.hasCircularDep && (
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  padding: "3px 8px",
-                  borderRadius: 6,
-                  color: "oklch(0.68 0.22 27)",
-                  background: "oklch(0.68 0.22 27 / 12%)",
-                  border: "1px solid oklch(0.68 0.22 27 / 28%)",
-                }}
-              >
+              <span className="text-[9px] font-bold uppercase tracking-[0.06em] py-0.75 px-2 rounded-[6px] text-[oklch(0.68_0.22_27)] bg-[oklch(0.68_0.22_27/12%)] border border-[oklch(0.68_0.22_27/28%)]">
                 ↺ Circular
               </span>
             )}
           </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 6,
-              marginBottom: 12,
-            }}
-          >
+          <div className="grid grid-cols-2 gap-1.5 mb-3">
             {[
               { label: "Imports", value: node.outDegree },
               { label: "Imported by", value: node.inDegree },
@@ -185,34 +99,12 @@ export function NodeDetailPanel({
             ].map(({ label, value }) => (
               <div
                 key={label}
-                style={{
-                  background: "oklch(0.14 0.014 260)",
-                  borderRadius: 8,
-                  padding: "7px 10px",
-                  border: "1px solid oklch(1 0 0 / 5%)",
-                }}
+                className="bg-[oklch(0.14_0.014_260)] rounded-lg p-[7px_10px] border border-[oklch(1_0_0/5%)]"
               >
-                <span
-                  style={{
-                    fontSize: 9,
-                    color: "oklch(0.44 0.03 260)",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.06em",
-                    display: "block",
-                    marginBottom: 3,
-                  }}
-                >
+                <span className="text-[9px] text-[oklch(0.44_0.03_260)] uppercase tracking-[0.06em] block mb-[3px]">
                   {label}
                 </span>
-                <span
-                  style={{
-                    fontSize: 13,
-                    fontFamily: "var(--font-geist-mono, monospace)",
-                    fontWeight: 700,
-                    color: "oklch(0.87 0 0)",
-                    lineHeight: 1,
-                  }}
-                >
+                <span className="text-[13px] font-mono font-bold text-[oklch(0.87_0_0)] leading-none">
                   {value}
                 </span>
               </div>
@@ -220,58 +112,23 @@ export function NodeDetailPanel({
           </div>
 
           {imports.length > 0 && (
-            <div style={{ marginBottom: 10 }}>
-              <span
-                style={{
-                  fontSize: 9,
-                  color: "oklch(0.44 0.03 260)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  marginBottom: 5,
-                }}
-              >
-                <ArrowUpRight style={{ width: 10, height: 10, color: "oklch(0.62 0.22 240)" }} />
+            <div className="mb-2.5">
+              <span className="text-[9px] text-[oklch(0.44_0.03_260)] uppercase tracking-[0.06em] flex items-center gap-1 mb-[5px]">
+                <ArrowUpRight className="w-2.5 h-2.5 text-[oklch(0.62_0.22_240)]" />
                 Imports ({imports.length})
               </span>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 3,
-                  maxHeight: 96,
-                  overflowY: "auto",
-                }}
-              >
+              <div className="flex flex-col gap-0.75 max-h-24 overflow-y-auto">
                 {imports.slice(0, 8).map((dep) => (
                   <span
                     key={dep.id}
-                    style={{
-                      fontSize: 10,
-                      fontFamily: "var(--font-geist-mono, monospace)",
-                      color: "oklch(0.62 0.22 240)",
-                      background: "oklch(0.62 0.22 240 / 8%)",
-                      borderRadius: 5,
-                      padding: "2px 7px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
+                    className="text-[10px] font-mono text-[oklch(0.62_0.22_240)] bg-[oklch(0.62_0.22_240/8%)] rounded-[5px] px-[7px] py-0.5 overflow-hidden text-ellipsis whitespace-nowrap"
                     title={dep.path}
                   >
                     {dep.label}
                   </span>
                 ))}
                 {imports.length > 8 && (
-                  <span
-                    style={{
-                      fontSize: 9,
-                      color: "oklch(0.44 0.03 260)",
-                      paddingLeft: 5,
-                    }}
-                  >
+                  <span className="text-[9px] text-[oklch(0.44_0.03_260)] pl-[5px]">
                     +{imports.length - 8} more
                   </span>
                 )}
@@ -281,57 +138,22 @@ export function NodeDetailPanel({
 
           {importedBy.length > 0 && (
             <div>
-              <span
-                style={{
-                  fontSize: 9,
-                  color: "oklch(0.44 0.03 260)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  marginBottom: 5,
-                }}
-              >
-                <ArrowDownLeft style={{ width: 10, height: 10, color: "oklch(0.55 0.18 280)" }} />
+              <span className="text-[9px] text-[oklch(0.44_0.03_260)] uppercase tracking-[0.06em] flex items-center gap-1 mb-[5px]">
+                <ArrowDownLeft className="w-2.5 h-2.5 text-[oklch(0.55_0.18_280)]" />
                 Imported by ({importedBy.length})
               </span>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 3,
-                  maxHeight: 96,
-                  overflowY: "auto",
-                }}
-              >
+              <div className="flex flex-col gap-0.75 max-h-24 overflow-y-auto">
                 {importedBy.slice(0, 8).map((dep) => (
                   <span
                     key={dep.id}
-                    style={{
-                      fontSize: 10,
-                      fontFamily: "var(--font-geist-mono, monospace)",
-                      color: "oklch(0.55 0.18 280)",
-                      background: "oklch(0.55 0.18 280 / 8%)",
-                      borderRadius: 5,
-                      padding: "2px 7px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
+                    className="text-[10px] font-mono text-[oklch(0.55_0.18_280)] bg-[oklch(0.55_0.18_280/8%)] rounded-[5px] px-[7px] py-0.5 overflow-hidden text-ellipsis whitespace-nowrap"
                     title={dep.path}
                   >
                     {dep.label}
                   </span>
                 ))}
                 {importedBy.length > 8 && (
-                  <span
-                    style={{
-                      fontSize: 9,
-                      color: "oklch(0.44 0.03 260)",
-                      paddingLeft: 5,
-                    }}
-                  >
+                  <span className="text-[9px] text-[oklch(0.44_0.03_260)] pl-[5px]">
                     +{importedBy.length - 8} more
                   </span>
                 )}

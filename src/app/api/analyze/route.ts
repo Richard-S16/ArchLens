@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { githubFetch, fetchFileContent, fetchSourceFiles } from "@/lib/githubClient";
 import { analyzeRepository } from "@/lib/analyzer";
+import { generateAIAnalysis } from "@/lib/aiAnalyzer";
 import type { FileNode } from "@/types/github";
 
 const bodySchema = z.object({
@@ -120,7 +121,9 @@ export async function POST(request: NextRequest) {
 
     const result = analyzeRepository(tree, repoMeta, langsData, fileContents, packageJson);
 
-    return NextResponse.json(result);
+    const aiAnalysis = await generateAIAnalysis(result, repoMeta);
+
+    return NextResponse.json({ ...result, aiAnalysis });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     if (message.includes("404")) {

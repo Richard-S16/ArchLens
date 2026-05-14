@@ -107,11 +107,35 @@ export type ArchitectureMetadata = {
   dynamicImportCount: number;
 };
 
+export type AIRecommendationPriority = "high" | "medium" | "low";
+export type AIEffortLevel = "low" | "medium" | "high";
+export type AIOverallAssessment = "excellent" | "good" | "needs-work" | "critical";
+
+export type AIRecommendation = {
+  id: string;
+  priority: AIRecommendationPriority;
+  title: string;
+  rationale: string;
+  effort: AIEffortLevel;
+  impact: AIEffortLevel;
+  category: InsightCategory;
+};
+
+export type AIAnalysis = {
+  architectureSummary: string;
+  keyStrengths: string[];
+  criticalRisks: string[];
+  recommendations: AIRecommendation[];
+  technicalDebtAssessment: string;
+  overallAssessment: AIOverallAssessment;
+};
+
 export type AnalysisResult = {
   graph: { nodes: GraphNode[]; edges: GraphEdge[] };
   scores: ArchitectureScores;
   metadata: ArchitectureMetadata;
   insights: ArchitectureInsight[];
+  aiAnalysis: AIAnalysis | null;
   parsedFileCount: number;
   analysisTimestamp: string;
 };

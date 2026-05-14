@@ -14,11 +14,11 @@ export const FEATURES = [
   {
     icon: BrainCircuit,
     title: "AI Analysis",
-    desc: "Gemini analyzes architectural patterns, anti-patterns, and scalability risks.",
+    desc: "AI analyzes architectural patterns, anti-patterns, and scalability risks.",
   },
   {
     icon: Zap,
     title: "Instant Scoring",
-    desc: "Maintainability, coupling, and performance scores — clear, data-driven, actionable.",
+    desc: "Maintainability, coupling, and performance scores: clear, data-driven, actionable.",
   },
 ];

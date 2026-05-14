@@ -85,8 +85,7 @@ export function GridBackground() {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      className="fixed inset-0 pointer-events-none opacity-70"
-      style={{ zIndex: 0 }}
+      className="fixed inset-0 pointer-events-none opacity-70 z-0"
     />
   );
 }

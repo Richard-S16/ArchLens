@@ -17,9 +17,6 @@ export default function HomePage() {
             </div>
             <span className="font-bold text-foreground tracking-tight text-lg">ArchLens</span>
           </div>
-          <Badge variant="secondary" className="text-xs font-mono border-border/50">
-            Phase 2 · Analysis Engine
-          </Badge>
         </nav>
 
         <section className="flex-1 flex flex-col items-center justify-center px-4 py-16 text-center">
@@ -52,7 +49,7 @@ export default function HomePage() {
             {FEATURES.map(({ icon: Icon, title, desc }) => (
               <div
                 key={title}
-                className="p-5 rounded-xl border border-border/40 bg-(--al-surface)/60 backdrop-blur-sm hover:border-(--al-blue)/30 hover:bg-(--al-surface-elevated)/80 transition-all duration-300 group"
+                className="p-5 rounded-xl border border-border/40 bg-(--al-surface)/60 backdrop-blur-sm hover:border-(--al-blue)/30 hover:bg-(--al-surface-elevated)/80 transition-all duration-150 group"
               >
                 <div className="w-9 h-9 rounded-lg bg-(--al-blue)/10 flex items-center justify-center mb-3 group-hover:bg-(--al-blue)/20 transition-colors">
                   <Icon className="w-4 h-4 text-(--al-blue)" />
@@ -67,7 +64,6 @@ export default function HomePage() {
         <footer className="border-t border-border/30 py-5 px-6">
           <div className="max-w-6xl mx-auto flex items-center justify-between text-xs text-muted-foreground/60">
             <span>ArchLens — AI Repository Intelligence Platform</span>
-            <span className="font-mono">v0.2.0 · Phase 2</span>
           </div>
         </footer>
       </main>

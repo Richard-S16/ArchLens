@@ -7,6 +7,7 @@
 - Do not add comments to code unless explicitly requested.
 - Avoid single-letter variable names. Use descriptive names instead.
 - Do not use inline styles. Use Tailwind CSS only.
+- Every button and link must have cursor-pointer and a hover effect.
 
 ## Project Structure
 - Each React component must live in its own file.

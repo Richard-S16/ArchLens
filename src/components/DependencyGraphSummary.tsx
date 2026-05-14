@@ -224,9 +224,6 @@ export function DependencyGraphSummary({ result }: Props) {
             <p className="text-xs text-muted-foreground mt-1">
               of {metadata.totalFiles} total
             </p>
-            <Badge className="mt-2 text-[10px] font-mono bg-(--al-blue)/10 text-(--al-blue) border-(--al-blue)/20">
-              Interactive graph → Phase 3
-            </Badge>
           </div>
         </div>
 

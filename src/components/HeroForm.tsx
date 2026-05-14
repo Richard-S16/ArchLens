@@ -173,7 +173,7 @@ export function HeroForm() {
               key={repo}
               onClick={() => { setUrl(repo); handleSubmit(repo); }}
               disabled={loading}
-              className="text-xs px-3 py-1.5 rounded-full border border-border/50 bg-(--al-surface) hover:border-(--al-blue)/50 hover:bg-(--al-surface-elevated) text-muted-foreground hover:text-foreground transition-all duration-200 font-mono disabled:opacity-50"
+              className="cursor-pointer text-xs px-3 py-1.5 rounded-full border border-border/50 bg-(--al-surface) hover:border-(--al-blue)/50 hover:bg-(--al-surface-elevated) text-muted-foreground hover:text-foreground transition-all duration-200 font-mono disabled:opacity-50"
             >
               {short}
             </button>

@@ -214,61 +214,22 @@ export function GraphFlow({
   );
 
   return (
-    <div style={{ position: "relative", width: "100%", height: "100%" }}>
-      <div
-        style={{
-          position: "absolute",
-          top: 12,
-          left: 12,
-          zIndex: 10,
-          display: "flex",
-          alignItems: "center",
-          gap: 7,
-          flexWrap: "wrap",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 7,
-            background: "oklch(0.10 0.014 260 / 94%)",
-            backdropFilter: "blur(14px)",
-            border: "1px solid oklch(1 0 0 / 9%)",
-            borderRadius: 10,
-            padding: "5px 9px",
-            width: 196,
-            boxShadow: "0 4px 16px oklch(0 0 0 / 30%)",
-          }}
-        >
-          <Search style={{ width: 12, height: 12, color: "oklch(0.46 0.03 260)", flexShrink: 0 }} />
+    <div className="relative w-full h-full">
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.75 flex-wrap">
+        <div className="flex items-center gap-1.75 bg-[oklch(0.10_0.014_260/94%)] backdrop-blur-[14px] border border-[oklch(1_0_0/9%)] rounded-[10px] py-1.25 px-2.25 w-49 shadow-[0_4px_16px_oklch(0_0_0/30%)]">
+          <Search className="w-3 h-3 text-[oklch(0.46_0.03_260)] shrink-0" />
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search files…"
-            style={{
-              background: "none",
-              border: "none",
-              outline: "none",
-              fontSize: 11,
-              color: "oklch(0.87 0 0)",
-              width: "100%",
-              fontFamily: "var(--font-geist-mono, monospace)",
-            }}
+            className="bg-transparent border-0 outline-none text-[11px] text-[oklch(0.87_0_0)] w-full font-mono"
           />
           {search && (
             <button
               onClick={() => setSearch("")}
-              style={{
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                display: "flex",
-                color: "oklch(0.46 0.03 260)",
-              }}
+              className="bg-transparent border-0 cursor-pointer p-0 flex text-[oklch(0.46_0.03_260)]"
             >
-              <X style={{ width: 11, height: 11 }} />
+              <X className="w-2.75 h-2.75" />
             </button>
           )}
         </div>
@@ -293,7 +254,7 @@ export function GraphFlow({
           label="Legend"
           count={null}
           activeColor="oklch(0.55 0.18 280)"
-          icon={<Layers style={{ width: 10, height: 10 }} />}
+          icon={<Layers className="w-2.5 h-2.5" />}
         />
       </div>
 
@@ -304,82 +265,31 @@ export function GraphFlow({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.97 }}
             transition={{ duration: 0.18 }}
-            style={{
-              position: "absolute",
-              top: 52,
-              left: 12,
-              zIndex: 10,
-              background: "oklch(0.10 0.014 260 / 96%)",
-              backdropFilter: "blur(16px)",
-              border: "1px solid oklch(1 0 0 / 9%)",
-              borderRadius: 12,
-              padding: "12px 14px",
-              boxShadow: "0 8px 28px oklch(0 0 0 / 40%)",
-            }}
+            className="absolute top-13 left-3 z-10 bg-[oklch(0.10_0.014_260/96%)] backdrop-blur-lg border border-[oklch(1_0_0/9%)] rounded-xl py-3 px-3.5 shadow-[0_8px_28px_oklch(0_0_0/40%)]"
           >
-            <p
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                color: "oklch(0.44 0.03 260)",
-                marginBottom: 9,
-              }}
-            >
+            <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-[oklch(0.44_0.03_260)] mb-2.25">
               Node Types
             </p>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "5px 16px",
-              }}
-            >
+            <div className="grid grid-cols-2 gap-y-1.25 gap-x-4">
               {(Object.entries(TYPE_CONFIG) as [NodeType, { color: string; label: string }][])
                 .filter(([type]) => typesPresent.has(type))
                 .map(([type, { color, label }]) => (
                   <div
                     key={type}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                    }}
+                    className="flex items-center gap-1.5"
                   >
                     <span
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 2,
-                        background: color,
-                        flexShrink: 0,
-                        boxShadow: `0 0 5px ${color}`,
-                      }}
+                      className="w-2 h-2 rounded-xs shrink-0"
+                      style={{ background: color, boxShadow: `0 0 5px ${color}` }}
                     />
-                    <span
-                      style={{
-                        fontSize: 10,
-                        color: "oklch(0.70 0 0)",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                    <span className="text-[10px] text-[oklch(0.70_0_0)] whitespace-nowrap">
                       {label}
                     </span>
                   </div>
                 ))}
             </div>
-            <div style={{ borderTop: "1px solid oklch(1 0 0 / 7%)", marginTop: 10, paddingTop: 9 }}>
-              <p
-                style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  color: "oklch(0.44 0.03 260)",
-                  marginBottom: 7,
-                }}
-              >
+            <div className="border-t border-[oklch(1_0_0/7%)] mt-2.5 pt-2.25">
+              <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-[oklch(0.44_0.03_260)] mb-1.75">
                 Edge Types
               </p>
               {[
@@ -389,12 +299,7 @@ export function GraphFlow({
               ].map(({ dash, color, label }) => (
                 <div
                   key={label}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 7,
-                    marginBottom: 4,
-                  }}
+                  className="flex items-center gap-1.75 mb-1"
                 >
                   <svg width={22} height={8}>
                     <line
@@ -407,7 +312,7 @@ export function GraphFlow({
                       strokeDasharray={dash === "none" ? undefined : dash}
                     />
                   </svg>
-                  <span style={{ fontSize: 10, color: "oklch(0.70 0 0)" }}>{label}</span>
+                  <span className="text-[10px] text-[oklch(0.70_0_0)]">{label}</span>
                 </div>
               ))}
             </div>
@@ -415,48 +320,21 @@ export function GraphFlow({
         )}
       </AnimatePresence>
 
-      <div
-        style={{
-          position: "absolute",
-          bottom: 56,
-          left: 12,
-          zIndex: 10,
-          background: "oklch(0.10 0.014 260 / 92%)",
-          backdropFilter: "blur(14px)",
-          border: "1px solid oklch(1 0 0 / 8%)",
-          borderRadius: 10,
-          padding: "6px 14px",
-          display: "flex",
-          gap: 16,
-          boxShadow: "0 4px 16px oklch(0 0 0 / 30%)",
-        }}
-      >
+      <div className="absolute bottom-14 left-3 z-10 bg-[oklch(0.10_0.014_260/92%)] backdrop-blur-[14px] border border-[oklch(1_0_0/8%)] rounded-[10px] py-1.5 px-3.5 flex gap-4 shadow-[0_4px_16px_oklch(0_0_0/30%)]">
         {[
           { label: "nodes", value: displayedNodes.length, color: "oklch(0.62 0.22 240)" },
           { label: "edges", value: displayedEdges.length, color: "oklch(0.55 0.18 280)" },
           { label: "hotspots", value: hotspotCount, color: "oklch(0.72 0.18 52)" },
           { label: "circular", value: circularCount, color: "oklch(0.68 0.22 27)" },
         ].map(({ label, value, color }) => (
-          <div key={label} style={{ textAlign: "center" }}>
+          <div key={label} className="text-center">
             <div
-              style={{
-                fontSize: 13,
-                fontFamily: "var(--font-geist-mono, monospace)",
-                fontWeight: 700,
-                color,
-                lineHeight: 1.2,
-              }}
+              className="text-[13px] font-mono font-bold leading-[1.2]"
+              style={{ color }}
             >
               {value}
             </div>
-            <div
-              style={{
-                fontSize: 8,
-                color: "oklch(0.44 0.03 260)",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-              }}
-            >
+            <div className="text-[8px] text-[oklch(0.44_0.03_260)] uppercase tracking-[0.06em]">
               {label}
             </div>
           </div>

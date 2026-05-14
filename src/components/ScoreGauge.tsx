@@ -65,7 +65,7 @@ export function ScoreGauge({
           width="100"
           height="100"
           viewBox="0 0 100 100"
-          style={{ transform: "rotate(-90deg)" }}
+          className="-rotate-90"
         >
           <circle
             cx="50"
@@ -91,7 +91,6 @@ export function ScoreGauge({
 
         <div
           className="absolute inset-0 flex flex-col items-center justify-center"
-          style={{ transform: "rotate(0deg)" }}
         >
           <motion.span
             className="text-xl font-bold leading-none tabular-nums"

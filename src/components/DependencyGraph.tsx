@@ -6,17 +6,7 @@ import { GraphFlow } from "./DependencyGraph/GraphFlow";
 
 export function DependencyGraph({ result }: { result: AnalysisResult }) {
   return (
-    <div
-      style={{
-        height: 660,
-        background: "oklch(0.078 0.012 260)",
-        borderRadius: 16,
-        overflow: "hidden",
-        position: "relative",
-        border: "1px solid oklch(1 0 0 / 6%)",
-        boxShadow: "inset 0 1px 0 oklch(1 0 0 / 4%)",
-      }}
-    >
+    <div className="h-165 bg-[oklch(0.078_0.012_260)] rounded-2xl overflow-hidden relative border border-[oklch(1_0_0/6%)] shadow-[inset_0_1px_0_oklch(1_0_0/4%)]">
       <ReactFlowProvider>
         <GraphFlow graphNodes={result.graph.nodes} graphEdges={result.graph.edges} />
       </ReactFlowProvider>

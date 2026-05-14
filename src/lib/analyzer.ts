@@ -155,6 +155,7 @@ export function analyzeRepository(
     scores,
     metadata,
     insights,
+    aiAnalysis: null,
     parsedFileCount: fileContents.size,
     analysisTimestamp: new Date().toISOString(),
   };

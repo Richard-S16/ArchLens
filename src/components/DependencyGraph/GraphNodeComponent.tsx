@@ -29,6 +29,7 @@ export function GraphNodeComponent({ data, selected }: NodeProps<RFNode>) {
 
   return (
     <div
+      className="rounded-[11px] overflow-hidden flex flex-col pt-2.25 px-2.75 pb-2 gap-1.25 cursor-pointer backdrop-blur-sm transition-[opacity,box-shadow,border-color] duration-250"
       style={{
         width: NODE_W,
         height: NODE_H,
@@ -36,17 +37,8 @@ export function GraphNodeComponent({ data, selected }: NodeProps<RFNode>) {
           ? "oklch(0.115 0.012 260)"
           : `color-mix(in oklch, ${cfg.color} 9%, oklch(0.13 0.015 260))`,
         border: `1px solid ${borderColor}`,
-        borderRadius: 11,
         opacity: dimmed ? 0.22 : 1,
         boxShadow: glowShadow,
-        transition: "opacity 0.25s, box-shadow 0.25s, border-color 0.25s",
-        cursor: "pointer",
-        overflow: "hidden",
-        display: "flex",
-        flexDirection: "column",
-        padding: "9px 11px 8px",
-        gap: 5,
-        backdropFilter: "blur(4px)",
       }}
     >
       <Handle
@@ -60,35 +52,22 @@ export function GraphNodeComponent({ data, selected }: NodeProps<RFNode>) {
         style={{ opacity: 0, width: 6, height: 6, bottom: -3 }}
       />
 
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 4 }}>
+      <div className="flex items-start justify-between gap-1">
         <span
-          style={{
-            fontSize: 11,
-            fontFamily: "var(--font-geist-mono, monospace)",
-            fontWeight: 600,
-            color: dimmed ? "oklch(0.38 0.02 260)" : "oklch(0.92 0 0)",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            maxWidth: 128,
-            lineHeight: 1.3,
-          }}
+          className="text-[11px] font-mono font-semibold overflow-hidden text-ellipsis whitespace-nowrap max-w-32 leading-[1.3]"
+          style={{ color: dimmed ? "oklch(0.38 0.02 260)" : "oklch(0.92 0 0)" }}
           title={node.path}
         >
           {node.label}
         </span>
-        <div style={{ display: "flex", gap: 3, flexShrink: 0, marginTop: 1 }}>
+        <div className="flex gap-0.75 shrink-0 mt-px">
           {node.isHotspot && (
-            <span style={{ fontSize: 9 }} title="Dependency hotspot">🔥</span>
+            <span className="text-[9px]" title="Dependency hotspot">🔥</span>
           )}
           {node.hasCircularDep && (
             <span
-              style={{
-                fontSize: 9,
-                color: "oklch(0.68 0.22 27)",
-                fontWeight: 800,
-                fontFamily: "monospace",
-              }}
+              className="text-[9px] font-extrabold font-mono"
+              style={{ color: "oklch(0.68 0.22 27)" }}
               title="Circular dependency"
             >
               ↺
@@ -97,33 +76,21 @@ export function GraphNodeComponent({ data, selected }: NodeProps<RFNode>) {
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 4 }}>
+      <div className="flex items-center justify-between gap-1">
         <span
+          className="text-[9px] font-bold uppercase tracking-[0.06em] py-0.5 px-1.5 rounded leading-normal"
           style={{
-            fontSize: 9,
-            fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            padding: "2px 6px",
-            borderRadius: 4,
             color: dimmed ? "oklch(0.38 0.02 260)" : cfg.color,
             background: dimmed
               ? "oklch(0.17 0.01 260)"
               : `color-mix(in oklch, ${cfg.color} 14%, transparent)`,
-            lineHeight: 1.5,
           }}
         >
           {cfg.label}
         </span>
         <div
-          style={{
-            fontSize: 9,
-            fontFamily: "var(--font-geist-mono, monospace)",
-            color: dimmed ? "oklch(0.32 0.02 260)" : "oklch(0.48 0.04 260)",
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-          }}
+          className="text-[9px] font-mono flex items-center gap-1.25"
+          style={{ color: dimmed ? "oklch(0.32 0.02 260)" : "oklch(0.48 0.04 260)" }}
         >
           <span title="Imported by">↓{node.inDegree}</span>
           <span title="Imports">↑{node.outDegree}</span>
