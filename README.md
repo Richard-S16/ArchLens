@@ -4,7 +4,7 @@
 
 **AI-Powered Repository Architecture Intelligence Platform**
 
-ArchLens transforms any public GitHub repository into an interactive architectural intelligence dashboard. Paste a repository URL and get a cinematic, data-driven breakdown of its structure, dependencies, and health — powered by Google Gemini.
+ArchLens transforms any public GitHub repository into an interactive architectural intelligence dashboard. Paste a repository URL and get a cinematic, data-driven breakdown of its structure, dependencies, and health — powered by DeepSeek.
 
 ---
 
@@ -12,7 +12,7 @@ ArchLens transforms any public GitHub repository into an interactive architectur
 
 - **Interactive Dependency Graph** — Visualize module relationships, feature boundaries, and dependency flow with a zoomable, pannable graph built on React Flow. Nodes highlight hotspots, circular dependencies, and coupling intensity.
 - **Architecture Scores** — Five scored dimensions (Maintainability, Scalability, Coupling, Frontend Performance, Architecture Consistency) rendered as animated gauges.
-- **AI Architecture Analysis** — Google Gemini acts as a staff software architect: summarizing patterns, identifying anti-patterns, assessing technical debt, and generating prioritized recommendations.
+- **AI Architecture Analysis** — DeepSeek summarizes patterns, identifies anti-patterns, assesses technical debt, and generates prioritized recommendations.
 - **Insight Cards** — Contextual insights surface issues like hydration boundary complexity, large rerender propagation risk, and circular dependency chains.
 - **Framework & Stack Detection** — Automatically detects framework, architecture pattern, package manager, and full tech stack.
 - **File Tree Explorer** — Collapsible file tree with language tagging and hotspot highlighting.
@@ -28,7 +28,7 @@ ArchLens transforms any public GitHub repository into an interactive architectur
 | Styling | Tailwind CSS v4 |
 | Motion | Framer Motion |
 | Visualization | React Flow (`@xyflow/react`) |
-| AI | Google Gemini via AI SDK (`@ai-sdk/google`) |
+| AI | DeepSeek Flash via AI SDK (`@ai-sdk/deepseek`) |
 | Schema Validation | Zod |
 | UI Components | shadcn/ui |
 
@@ -39,7 +39,7 @@ ArchLens transforms any public GitHub repository into an interactive architectur
 ### Prerequisites
 
 - Node.js 20+
-- A [Google Gemini API key](https://aistudio.google.com/app/apikey)
+- A [DeepSeek API key](https://platform.deepseek.com/api_keys) (optional; required for AI analysis)
 - A [GitHub Personal Access Token](https://github.com/settings/tokens) (public repo read scope is sufficient)
 
 ### Installation
@@ -52,10 +52,10 @@ npm install
 
 ### Environment Variables
 
-Create a `.env.local` file in the project root:
+Create a `.env.local` or `.env` file in the project root:
 
 ```env
-GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+DEEPSEEK_API_KEY=your_deepseek_api_key
 GITHUB_TOKEN=your_github_pat
 ```
 
@@ -80,7 +80,7 @@ npm start
 
 1. Paste any public GitHub repository URL into the input field on the landing page.
 2. ArchLens fetches the repository tree and selects the most architecturally significant source files.
-3. The analysis pipeline runs: framework detection → dependency graph construction → scoring → insight generation → Gemini AI analysis.
+3. The analysis pipeline runs: framework detection → dependency graph construction → scoring → insight generation → DeepSeek AI analysis.
 4. Explore the interactive dashboard:
    - Navigate the **Dependency Graph** to trace relationships between modules.
    - Review **Architecture Scores** across five health dimensions.
@@ -104,14 +104,14 @@ src/
 ├── components/
 │   ├── AnalysisDashboard.tsx     # Top-level dashboard layout
 │   ├── DependencyGraph/          # React Flow graph system
-│   ├── AIAnalysisPanel.tsx       # Gemini output panel
+│   ├── AIAnalysisPanel.tsx       # AI output panel
 │   ├── ArchitectureScores.tsx    # Score gauges
 │   ├── InsightCards.tsx          # Insight card grid
 │   ├── FileTree.tsx              # File explorer
 │   └── ui/                       # shadcn/ui primitives
 ├── lib/
 │   ├── analyzer.ts               # Core analysis orchestrator
-│   ├── aiAnalyzer.ts             # Gemini integration
+│   ├── aiAnalyzer.ts             # DeepSeek integration
 │   ├── graphBuilder.ts           # Dependency graph construction
 │   ├── scorer.ts                 # Architecture scoring
 │   ├── insightGenerator.ts       # Insight generation
@@ -180,7 +180,7 @@ The recommended deployment target is [Vercel](https://vercel.com).
 Set the following environment variables in your Vercel project settings:
 
 ```
-GOOGLE_GENERATIVE_AI_API_KEY
+DEEPSEEK_API_KEY
 GITHUB_TOKEN
 ```
 
