@@ -10,10 +10,11 @@ export type NodeData = {
 export type EdgeData = {
   edgeType: "static" | "dynamic" | "reexport";
   dimmed: boolean;
+  direction?: "incoming" | "outgoing";
 };
 
 export type RFNode = Node<NodeData, "graphNode">;
 export type RFEdge = Edge<EdgeData, "graphEdge">;
 
-export type LabelNodeData = { label: string; color: string };
+export type LabelNodeData = { label: string; code: string };
 export type LabelNode = Node<LabelNodeData, "layerLabel">;

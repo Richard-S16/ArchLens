@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./atlas.css";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -14,21 +15,21 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ArchLens: Repository Architecture Intelligence",
+  title: "ArchLens — GitHub repository maps",
   description:
-    "AI-powered repository architecture analysis. Visualize dependencies, detect technical debt, and get AI-powered architectural recommendations.",
+    "Map a public GitHub repository, follow imports, and review architecture findings.",
   keywords: ["architecture", "repository", "analysis", "AI", "visualization", "dependency graph", "technical debt"],
   openGraph: {
-    title: "ArchLens: Repository Architecture Intelligence",
+    title: "ArchLens — GitHub repository maps",
     description:
-      "Paste a GitHub URL. ArchLens maps your repository structure, visualizes dependencies, and surfaces architectural insights powered by AI.",
+      "Map a public GitHub repository, follow imports, and review architecture findings.",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ArchLens: Repository Architecture Intelligence",
+    title: "ArchLens — GitHub repository maps",
     description:
-      "Paste a GitHub URL. ArchLens maps your repository structure, visualizes dependencies, and surfaces architectural insights powered by AI.",
+      "Map a public GitHub repository, follow imports, and review architecture findings.",
   },
 };
 
@@ -48,4 +49,3 @@ export default function RootLayout({
     </html>
   );
 }
-

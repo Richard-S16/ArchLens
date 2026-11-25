@@ -1,407 +1,155 @@
 "use client";
 
 import {
-  ReactFlow,
-  Background,
-  Controls,
-  MiniMap,
-  MarkerType,
-  useNodesState,
-  useEdgesState,
-  useReactFlow,
-  BackgroundVariant,
-  type Node,
+  ReactFlow, Background, Controls, MiniMap, MarkerType, useNodesState, useReactFlow,
+  BackgroundVariant, type NodeChange,
 } from "@xyflow/react";
-import { useState, useCallback, useEffect, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Layers } from "lucide-react";
-import type { GraphNode, GraphEdge, NodeType } from "@/types/analysis";
-import {
-  NODE_W,
-  NODE_H,
-  H_GAP,
-  V_GAP,
-  ROW_GAP,
-  NODES_PER_ROW,
-  MAX_NODES,
-  TYPE_CONFIG,
-  LAYER_ORDER,
-  LAYER_LABELS,
-  LAYER_COLORS,
-} from "@/constants/dependencyGraph";
-import type { RFNode, RFEdge, LabelNode, NodeData } from "@/types/graph";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ArrowUpRight, Search, X } from "lucide-react";
+import type { GraphNode, GraphEdge } from "@/types/analysis";
+import { NODE_W, NODE_H, MAX_NODES, TYPE_CONFIG, LAYER_ORDER, LAYER_LABELS } from "@/constants/dependencyGraph";
+import type { RFNode, RFEdge, LabelNode } from "@/types/graph";
 import { computePositions } from "./computePositions";
 import { NodeDetailPanel } from "./NodeDetailPanel";
-import { FilterPill } from "./FilterPill";
 import { edgeTypes, nodeTypes } from "@/constants/graphFlow";
 
-export function GraphFlow({
-  graphNodes,
-  graphEdges,
-}: {
-  graphNodes: GraphNode[];
-  graphEdges: GraphEdge[];
-}) {
+const layers = [...LAYER_ORDER, "other"];
+const layerOf = (node: GraphNode) => layers.includes(node.layer) ? node.layer : "other";
+const layerCode = (layer: string) => String.fromCharCode(65 + layers.indexOf(layer));
+const edgeInk = { static: "#5d7269", dynamic: "#75568a", reexport: "#466c83", incoming: "#86491c", outgoing: "#235a45" };
+
+export function GraphFlow({ graphNodes, graphEdges, visible }: { graphNodes: GraphNode[]; graphEdges: GraphEdge[]; visible: boolean }) {
   const [search, setSearch] = useState("");
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
-  const [showHotspotsOnly, setShowHotspotsOnly] = useState(false);
-  const [showCircularOnly, setShowCircularOnly] = useState(false);
-  const [showLegend, setShowLegend] = useState(false);
+  const [hotspots, setHotspots] = useState(false);
+  const [cycles, setCycles] = useState(false);
+  const [legend, setLegend] = useState(false);
+  const { fitView, setCenter, getZoom, getNode } = useReactFlow();
+  const [canvasNodes, setNodes, onNodesChange] = useNodesState<RFNode | LabelNode>([]);
 
-  const { fitView } = useReactFlow();
-
-  const [nodes, setNodes, onNodesChange] = useNodesState<RFNode | LabelNode>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<RFEdge>([]);
-
-  const displayedNodes = useMemo(() => {
-    let ns = [...graphNodes];
-    if (showHotspotsOnly) ns = ns.filter((graphNode) => graphNode.isHotspot);
-    if (showCircularOnly) ns = ns.filter((graphNode) => graphNode.hasCircularDep);
-    if (ns.length > MAX_NODES) {
-      ns.sort((nodeA, nodeB) => {
-        if (nodeA.isHotspot !== nodeB.isHotspot) return nodeA.isHotspot ? -1 : 1;
-        if (nodeA.hasCircularDep !== nodeB.hasCircularDep) return nodeA.hasCircularDep ? -1 : 1;
-        return nodeB.inDegree + nodeB.outDegree - (nodeA.inDegree + nodeA.outDegree);
-      });
-      ns = ns.slice(0, MAX_NODES);
-    }
-    return ns;
-  }, [graphNodes, showHotspotsOnly, showCircularOnly]);
-
-  const displayedEdges = useMemo(() => {
-    const nodeSet = new Set(displayedNodes.map((graphNode) => graphNode.id));
-    return graphEdges.filter((edge) => nodeSet.has(edge.source) && nodeSet.has(edge.target));
-  }, [graphEdges, displayedNodes]);
-
-  const positions = useMemo(() => computePositions(displayedNodes), [displayedNodes]);
-
-  const focusedSet = useMemo(() => {
-    if (!focusedNodeId) return null;
-    const set = new Set<string>([focusedNodeId]);
-    for (const edge of displayedEdges) {
-      if (edge.source === focusedNodeId || edge.target === focusedNodeId) {
-        set.add(edge.source);
-        set.add(edge.target);
-      }
-    }
-    return set;
-  }, [focusedNodeId, displayedEdges]);
-
-  const focusedEdgeSet = useMemo(() => {
-    if (!focusedNodeId) return null;
-    return new Set(
-      displayedEdges
-        .filter((edge) => edge.source === focusedNodeId || edge.target === focusedNodeId)
-        .map((edge) => edge.id)
-    );
-  }, [focusedNodeId, displayedEdges]);
+  const shown = useMemo(() => {
+    const eligible = graphNodes.filter((node) => (!hotspots || node.isHotspot) && (!cycles || node.hasCircularDep));
+    const displayed = eligible.length <= MAX_NODES ? eligible : eligible.sort((a, b) =>
+      Number(b.isHotspot) - Number(a.isHotspot) ||
+      Number(b.hasCircularDep) - Number(a.hasCircularDep) ||
+      b.inDegree + b.outDegree - a.inDegree - a.outDegree
+    ).slice(0, MAX_NODES);
+    const ids = new Set(displayed.map((node) => node.id));
+    return { nodes: displayed, edges: graphEdges.filter((edge) => ids.has(edge.source) && ids.has(edge.target)), total: eligible.length };
+  }, [graphNodes, graphEdges, hotspots, cycles]);
+  const focused = shown.nodes.find((node) => node.id === focusedNodeId);
+  const focusedId = focused?.id;
+  const positions = useMemo(() => computePositions(shown.nodes), [shown.nodes]);
+  const groups = useMemo(() => layers.map((layer) => ({
+    layer, code: layerCode(layer), label: LAYER_LABELS[layer], nodes: shown.nodes.filter((node) => layerOf(node) === layer),
+  })).filter((group) => group.nodes.length), [shown.nodes]);
 
   useEffect(() => {
-    const searchLow = search.toLowerCase().trim();
-    const hasSearch = searchLow.length > 0;
+    setNodes([
+      ...shown.nodes.map((node): RFNode => ({
+        id: node.id, type: "graphNode", position: positions[node.id], data: { node, dimmed: false, focused: false },
+        ariaLabel: node.path,
+      })),
+      ...groups.map(({ layer, label, code, nodes }): LabelNode => ({
+        id: `__label__${layer}`, type: "layerLabel", draggable: false, selectable: false, focusable: false,
+        position: { x: -NODE_W / 2, y: Math.min(...nodes.map((node) => positions[node.id].y)) - 32 },
+        data: { label, code },
+      })),
+    ]);
+  }, [groups, positions, setNodes, shown.nodes]);
 
-    const byLayer: Partial<Record<string, GraphNode[]>> = {};
-    for (const node of displayedNodes) {
-      const key = (LAYER_ORDER as string[]).includes(node.layer) ? node.layer : "other";
-      if (!byLayer[key]) byLayer[key] = [];
-      byLayer[key]!.push(node);
-    }
+  useEffect(() => {
+    if (!visible) return;
+    const timer = setTimeout(() => void fitView({ padding: 0.14 }), 80);
+    return () => clearTimeout(timer);
+  }, [visible, positions, fitView]);
 
-    const dataNodes: RFNode[] = displayedNodes.map((node) => {
-      const matchesSearch =
-        !hasSearch ||
-        node.label.toLowerCase().includes(searchLow) ||
-        node.path.toLowerCase().includes(searchLow);
-      const dimmed = (focusedSet ? !focusedSet.has(node.id) : false) || !matchesSearch;
-      const focused = focusedSet ? focusedSet.has(node.id) : false;
+  const onChange = useCallback((changes: NodeChange<RFNode | LabelNode>[]) => {
+    const selected = changes.find((change) => change.type === "select" && change.selected);
+    if (selected?.type === "select") setFocusedNodeId(selected.id);
+    onNodesChange(changes.filter((change) => change.type !== "select"));
+  }, [onNodesChange]);
 
+  const { nodes, edges, matches } = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const neighbors = new Set([focusedId]);
+    const edges = shown.edges.map((edge): RFEdge => {
+      const direction = focusedId === edge.source ? "outgoing" : focusedId === edge.target ? "incoming" : undefined;
+      if (direction) {
+        neighbors.add(edge.source);
+        neighbors.add(edge.target);
+      }
       return {
-        id: node.id,
-        type: "graphNode",
-        position: positions[node.id] ?? { x: 0, y: 0 },
-        data: { node, dimmed, focused },
-        draggable: true,
+        id: edge.id, source: edge.source, target: edge.target, type: "graphEdge",
+        data: { edgeType: edge.type, dimmed: !!focusedId && !direction, direction },
+        markerEnd: { type: MarkerType.ArrowClosed, color: edgeInk[direction ?? edge.type], width: 12, height: 12 },
+        zIndex: direction ? 1 : 0,
       };
     });
+    const matches: GraphNode[] = [];
+    const nodes = canvasNodes.map((entry) => {
+      if (entry.type !== "graphNode") return entry;
+      const match = !query || entry.data.node.path.toLowerCase().includes(query) || entry.data.node.label.toLowerCase().includes(query);
+      if (match && query) matches.push(entry.data.node);
+      return {
+        ...entry, selected: entry.id === focusedId,
+        data: { ...entry.data, focused: entry.id === focusedId, dimmed: focusedId ? !neighbors.has(entry.id) : !match },
+      };
+    });
+    return { nodes, edges, matches };
+  }, [canvasNodes, focusedId, search, shown.edges]);
 
-    const labelNodes: LabelNode[] = [];
-    let labelY = 0;
-    let prevLayer: string | null = null;
-
-    const allLayers = [...LAYER_ORDER, "other"];
-    for (const layer of allLayers) {
-      const layerNodes = byLayer[layer];
-      if (!layerNodes?.length) continue;
-
-      const rowCount = Math.ceil(layerNodes.length / NODES_PER_ROW);
-      const labelX = -(NODES_PER_ROW * (NODE_W + H_GAP)) / 2 - 20;
-
-      if (prevLayer !== layer) {
-        labelNodes.push({
-          id: `__label__${layer}`,
-          type: "layerLabel",
-          position: { x: labelX, y: labelY - 26 },
-          data: { label: LAYER_LABELS[layer] ?? layer, color: LAYER_COLORS[layer] ?? "oklch(0.55 0.04 260)" },
-          draggable: false,
-          selectable: false,
-        });
-        prevLayer = layer;
-      }
-
-      labelY += rowCount * (NODE_H + ROW_GAP) + V_GAP;
-    }
-
-    const rfEdges: RFEdge[] = displayedEdges.map((edge) => ({
-      id: edge.id,
-      source: edge.source,
-      target: edge.target,
-      type: "graphEdge",
-      data: {
-        edgeType: edge.type,
-        dimmed: focusedEdgeSet ? !focusedEdgeSet.has(edge.id) : false,
-      },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        color: "oklch(0.62 0.22 240 / 55%)",
-        width: 10,
-        height: 10,
-      },
-    }));
-
-    setNodes([...dataNodes, ...labelNodes] as (RFNode | LabelNode)[]);
-    setEdges(rfEdges);
-  }, [
-    displayedNodes,
-    displayedEdges,
-    positions,
-    focusedSet,
-    focusedEdgeSet,
-    search,
-    setNodes,
-    setEdges,
-  ]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => fitView({ padding: 0.1, duration: 480 }), 80);
-    return () => clearTimeout(timer);
-  }, [displayedNodes, fitView]);
-
-  const handleNodeClick = useCallback(
-    (_: React.MouseEvent, node: RFNode | LabelNode) => {
-      if (node.type === "layerLabel") return;
-      setFocusedNodeId((prev) => (prev === node.id ? null : node.id));
-    },
-    []
-  );
-
-  const handlePaneClick = useCallback(() => {
-    setFocusedNodeId(null);
-  }, []);
-
-  const typesPresent = useMemo(() => {
-    const types = new Set<NodeType>();
-    for (const n of displayedNodes) types.add(n.type);
-    return types;
-  }, [displayedNodes]);
-
-  const hotspotCount = useMemo(
-    () => graphNodes.filter((graphNode) => graphNode.isHotspot).length,
-    [graphNodes]
-  );
-  const circularCount = useMemo(
-    () => graphNodes.filter((graphNode) => graphNode.hasCircularDep).length,
-    [graphNodes]
-  );
-
+  const types = new Set(shown.nodes.map((node) => node.type));
+  function locate(id: string) {
+    setFocusedNodeId(id);
+    setSearch("");
+    const position = getNode(id)?.position ?? positions[id];
+    if (position) void setCenter(position.x + NODE_W / 2, position.y + NODE_H / 2, { zoom: Math.max(0.95, getZoom()) });
+  }
   return (
-    <div className="relative w-full h-full">
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-1.75 flex-wrap">
-        <div className="flex items-center gap-1.75 bg-[oklch(0.10_0.014_260/94%)] backdrop-blur-[14px] border border-[oklch(1_0_0/9%)] rounded-[10px] py-1.25 px-2.25 w-49 shadow-[0_4px_16px_oklch(0_0_0/30%)]">
-          <Search className="w-3 h-3 text-[oklch(0.46_0.03_260)] shrink-0" />
-          <input
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search files…"
-            className="bg-transparent border-0 outline-none text-[11px] text-[oklch(0.87_0_0)] w-full font-mono"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="bg-transparent border-0 cursor-pointer p-0 flex text-[oklch(0.46_0.03_260)]"
-            >
-              <X className="w-2.75 h-2.75" />
-            </button>
-          )}
+    <div className="atlas-graph">
+      <aside className="atlas-layer-index" aria-label="Layer index">
+        <h2>Layer index</h2>
+        {groups.map(({ layer, label, code, nodes }) => <div key={layer}><b>{code}</b><span>{label}</span><code>{nodes.length}</code></div>)}
+      </aside>
+      <div className="atlas-map-main">
+        <div className="atlas-tools">
+          <label className="atlas-search"><Search size={16} /><input type="search" aria-label="Search files" placeholder="Search files" value={search} onChange={(event) => setSearch(event.target.value)} />
+            {search && <button onClick={() => setSearch("")} aria-label="Clear search"><X size={15} /></button>}
+          </label>
+          <label><input type="checkbox" checked={hotspots} onChange={(event) => setHotspots(event.target.checked)} /> Hotspots</label>
+          <label><input type="checkbox" checked={cycles} onChange={(event) => setCycles(event.target.checked)} /> Cycles</label>
+          <button className="atlas-small-button" aria-expanded={legend} aria-controls="atlas-graph-legend" onClick={() => setLegend(!legend)}>Legend</button>
         </div>
-
-        <FilterPill
-          active={showHotspotsOnly}
-          onClick={() => setShowHotspotsOnly((prev) => !prev)}
-          label="🔥 Hotspots"
-          count={hotspotCount}
-          activeColor="oklch(0.72 0.18 52)"
-        />
-        <FilterPill
-          active={showCircularOnly}
-          onClick={() => setShowCircularOnly((prev) => !prev)}
-          label="↺ Circular"
-          count={circularCount}
-          activeColor="oklch(0.68 0.22 27)"
-        />
-        <FilterPill
-          active={showLegend}
-          onClick={() => setShowLegend((prev) => !prev)}
-          label="Legend"
-          count={null}
-          activeColor="oklch(0.55 0.18 280)"
-          icon={<Layers className="w-2.5 h-2.5" />}
-        />
-      </div>
-
-      <AnimatePresence>
-        {showLegend && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.97 }}
-            transition={{ duration: 0.18 }}
-            className="absolute top-13 left-3 z-10 bg-[oklch(0.10_0.014_260/96%)] backdrop-blur-lg border border-[oklch(1_0_0/9%)] rounded-xl py-3 px-3.5 shadow-[0_8px_28px_oklch(0_0_0/40%)]"
+        <div id="atlas-graph-legend" className="atlas-legend" hidden={!legend}>
+          <span>Import types:</span> <span>Static · solid</span><span>Dynamic · dashed</span><span>Re-export · dotted</span>
+          {types.size > 0 && <span>Files: {[...types].map((type) => TYPE_CONFIG[type].label).join(", ")}</span>}
+        </div>
+        {search.trim() && <div className="atlas-search-matches" aria-label="Matching files">
+          {matches.length ? matches.slice(0, 6).map((node) => <button key={node.id} onClick={() => locate(node.id)} title={node.path}><code>{node.path}</code><ArrowUpRight size={14} /></button>) : <p>No matching files on this map.</p>}
+          {matches.length > 6 && <p>Showing 6 of {matches.length} matches. Refine the search to see more.</p>}
+        </div>}
+        <div className="atlas-canvas">
+          <ReactFlow<RFNode | LabelNode, RFEdge>
+            nodes={nodes} edges={edges} nodeTypes={nodeTypes} edgeTypes={edgeTypes}
+            onNodesChange={onChange}
+            onNodeClick={(_, node) => { if (node.type === "graphNode") setFocusedNodeId(node.id); }}
+            onPaneClick={() => setFocusedNodeId(null)}
+            fitView fitViewOptions={{ padding: 0.14 }} minZoom={0.05} maxZoom={2.5}
+            deleteKeyCode={null} edgesFocusable={false} colorMode="light"
           >
-            <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-[oklch(0.44_0.03_260)] mb-2.25">
-              Node Types
-            </p>
-            <div className="grid grid-cols-2 gap-y-1.25 gap-x-4">
-              {(Object.entries(TYPE_CONFIG) as [NodeType, { color: string; label: string }][])
-                .filter(([type]) => typesPresent.has(type))
-                .map(([type, { color, label }]) => (
-                  <div
-                    key={type}
-                    className="flex items-center gap-1.5"
-                  >
-                    <span
-                      className="w-2 h-2 rounded-xs shrink-0"
-                      style={{ background: color, boxShadow: `0 0 5px ${color}` }}
-                    />
-                    <span className="text-[10px] text-[oklch(0.70_0_0)] whitespace-nowrap">
-                      {label}
-                    </span>
-                  </div>
-                ))}
-            </div>
-            <div className="border-t border-[oklch(1_0_0/7%)] mt-2.5 pt-2.25">
-              <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-[oklch(0.44_0.03_260)] mb-1.75">
-                Edge Types
-              </p>
-              {[
-                { dash: "none", color: "oklch(0.62 0.22 240)", label: "Static import" },
-                { dash: "5 3",  color: "oklch(0.55 0.18 280)", label: "Dynamic import" },
-                { dash: "2 2",  color: "oklch(0.60 0.14 165)", label: "Re-export" },
-              ].map(({ dash, color, label }) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-1.75 mb-1"
-                >
-                  <svg width={22} height={8}>
-                    <line
-                      x1={0}
-                      y1={4}
-                      x2={22}
-                      y2={4}
-                      stroke={color}
-                      strokeWidth={1.5}
-                      strokeDasharray={dash === "none" ? undefined : dash}
-                    />
-                  </svg>
-                  <span className="text-[10px] text-[oklch(0.70_0_0)]">{label}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="absolute bottom-14 left-16 z-10 bg-[oklch(0.10_0.014_260/92%)] backdrop-blur-[14px] border border-[oklch(1_0_0/8%)] rounded-[10px] py-1.5 px-3.5 flex gap-4 shadow-[0_4px_16px_oklch(0_0_0/30%)]">
-        {[
-          { label: "nodes", value: displayedNodes.length, color: "oklch(0.62 0.22 240)" },
-          { label: "edges", value: displayedEdges.length, color: "oklch(0.55 0.18 280)" },
-          { label: "hotspots", value: hotspotCount, color: "oklch(0.72 0.18 52)" },
-          { label: "circular", value: circularCount, color: "oklch(0.68 0.22 27)" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="text-center">
-            <div
-              className="text-[13px] font-mono font-bold leading-[1.2]"
-              style={{ color }}
-            >
-              {value}
-            </div>
-            <div className="text-[8px] text-[oklch(0.44_0.03_260)] uppercase tracking-[0.06em]">
-              {label}
-            </div>
-          </div>
-        ))}
+            <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#b9c7b7" />
+            <Controls position="bottom-left" />
+            <MiniMap position="bottom-right" nodeColor={(node) => node.type === "layerLabel" ? "transparent" : "#669080"} maskColor="#dce7ddaa" pannable zoomable />
+          </ReactFlow>
+          {!shown.nodes.length && <p className="atlas-map-message" role="status">{graphNodes.length ? "No files match the active filters." : "No dependency files were found."}</p>}
+        </div>
+        <div className="atlas-map-foot">
+          <div className="atlas-trace-key"><span>Imports</span><span>Imported by</span></div>
+          <span aria-live="polite">{search.trim() ? `${matches.length} matches · ` : ""}{shown.nodes.length} / {shown.total} files · {shown.edges.length} links</span>
+        </div>
       </div>
-
-      <NodeDetailPanel
-        nodeId={focusedNodeId}
-        nodes={displayedNodes}
-        edges={displayedEdges}
-        onClose={() => setFocusedNodeId(null)}
-      />
-
-      <ReactFlow
-        nodes={nodes as (RFNode | LabelNode)[]}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        onNodeClick={handleNodeClick as Parameters<typeof ReactFlow>[0]["onNodeClick"]}
-        onPaneClick={handlePaneClick}
-        fitView
-        fitViewOptions={{ padding: 0.12 }}
-        minZoom={0.05}
-        maxZoom={2.5}
-        proOptions={{ hideAttribution: true }}
-        style={{ background: "transparent" }}
-        deleteKeyCode={null}
-      >
-        <Background
-          variant={BackgroundVariant.Dots}
-          gap={28}
-          size={1}
-          color="oklch(1 0 0 / 4%)"
-        />
-        <Controls
-          position="bottom-left"
-          style={{
-            left: 14,
-            bottom: 14,
-            background: "oklch(0.10 0.014 260 / 92%)",
-            border: "1px solid oklch(1 0 0 / 8%)",
-            borderRadius: 10,
-            boxShadow: "0 4px 16px oklch(0 0 0 / 30%)",
-          }}
-        />
-        <MiniMap
-          position="bottom-right"
-          style={{
-            background: "oklch(0.085 0.012 260)",
-            border: "1px solid oklch(1 0 0 / 8%)",
-            borderRadius: 10,
-            boxShadow: "0 4px 16px oklch(0 0 0 / 30%)",
-          }}
-          nodeColor={(node: Node) => {
-            if (node.type === "layerLabel") return "transparent";
-            const nd = node.data as NodeData;
-            if (nd?.dimmed) return "oklch(0.22 0.02 260)";
-            const cfg = TYPE_CONFIG[nd?.node?.type] ?? TYPE_CONFIG.other;
-            return cfg.color;
-          }}
-          maskColor="oklch(0 0 0 / 35%)"
-          pannable
-          zoomable
-        />
-      </ReactFlow>
+      <NodeDetailPanel node={focused} nodes={shown.nodes} edges={shown.edges} lane={focused ? layerCode(layerOf(focused)) : undefined} onSelect={locate} onClose={() => setFocusedNodeId(null)} />
     </div>
   );
 }

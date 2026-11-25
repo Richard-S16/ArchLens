@@ -1,275 +1,152 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, GitBranch, ArrowRight, Loader2, CheckCircle2, Circle } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { useEffect, useRef, useState } from "react";
+import { ArrowRight, GitBranch } from "lucide-react";
 import { repoUrlSchema, parseRepoUrl } from "@/lib/github";
 import type { IngestionResult } from "@/types/github";
 import type { AnalysisResult } from "@/types/analysis";
-import { toast } from "sonner";
 import { AnalysisDashboard } from "./AnalysisDashboard";
 import { EXAMPLE_REPOS } from "@/constants/heroForm";
 
-const INGEST_STEPS = [
-  { id: "connect", label: "Connecting to GitHub" },
-  { id: "structure", label: "Parsing repository structure" },
-  { id: "languages", label: "Detecting languages & metadata" },
-  { id: "graph", label: "Building dependency graph" },
-];
-
-function IngestLoadingState() {
-  const [currentStep, setCurrentStep] = useState(0);
-
-  useEffect(() => {
-    if (currentStep >= INGEST_STEPS.length - 1) return;
-    const timer = setTimeout(() => setCurrentStep((prev) => prev + 1), 1600);
-    return () => clearTimeout(timer);
-  }, [currentStep]);
-
+function MapExample() {
   return (
-    <div className="flex flex-col items-center gap-5 py-6">
-      <div className="relative" aria-hidden="true">
-        <div className="w-11 h-11 rounded-full border-2 border-(--al-blue)/20 border-t-(--al-blue) animate-spin" />
-        <GitBranch className="absolute inset-0 m-auto w-4.5 h-4.5 text-(--al-blue)" />
-      </div>
-      <div className="w-full max-w-xs space-y-2.5">
-        {INGEST_STEPS.map((step, i) => {
-          const isDone = i < currentStep;
-          const isActive = i === currentStep;
-          return (
-            <motion.div
-              key={step.id}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.07 }}
-              className="flex items-center gap-2.5"
-            >
-              <AnimatePresence mode="wait">
-                {isDone ? (
-                  <motion.span
-                    key="done"
-                    initial={{ scale: 0.5 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
-                  </motion.span>
-                ) : isActive ? (
-                  <motion.span key="active">
-                    <Loader2 className="w-3.5 h-3.5 text-(--al-blue) animate-spin shrink-0" aria-hidden="true" />
-                  </motion.span>
-                ) : (
-                  <motion.span key="pending">
-                    <Circle className="w-3.5 h-3.5 text-border/30 shrink-0" aria-hidden="true" />
-                  </motion.span>
-                )}
-              </AnimatePresence>
-              <span
-                className={`text-sm transition-all duration-300 ${
-                  isDone
-                    ? "text-muted-foreground/45 line-through decoration-muted-foreground/25"
-                    : isActive
-                    ? "text-foreground/90 font-medium"
-                    : "text-muted-foreground/30"
-                }`}
-              >
-                {step.label}
-              </span>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
+    <figure className="atlas-example">
+      <figcaption><span><GitBranch size={16} /> relay-labs/relay</span><span>Example map</span></figcaption>
+      <svg viewBox="0 0 540 300" role="img" aria-label="Example dependency map: API and worker entry points use a shared dispatch module, which imports the queue and store adapters">
+        <path d="M180 0v300M360 0v300M0 42h540" stroke="#cfd5cb" />
+        <g className="atlas-demo-labels" textAnchor="middle">
+          <text x="90" y="26">A · Entry points</text><text x="270" y="26">B · Core</text><text x="450" y="26">C · Adapters</text>
+        </g>
+        <path d="M148 110h42v56h22M148 222h42v-56h22" fill="none" stroke="#86491c" strokeWidth="2" strokeDasharray="5 3" />
+        <path d="M328 166h42v-56h22m-22 56v56h22" fill="none" stroke="#235a45" strokeWidth="2" />
+        {[
+          [90, 110, "index.ts"], [90, 222, "jobs.ts"], [270, 166, "dispatch.ts"], [450, 110, "queue.ts"], [450, 222, "store.ts"],
+        ].map(([x, y, label]) => (
+          <g key={label} transform={`translate(${x} ${y})`} textAnchor="middle">
+            <rect x="-58" y="-18" width="116" height="36" rx="4" fill={label === "dispatch.ts" ? "#235a45" : "#fdfdf9"} stroke={label === "dispatch.ts" ? "#235a45" : "#a6b2a5"} />
+            <text y="5" fill={label === "dispatch.ts" ? "#fff" : "#232923"}>{label}</text>
+          </g>
+        ))}
+      </svg>
+      <div className="atlas-trace-key"><span>Imports</span><span>Imported by</span></div>
+    </figure>
   );
 }
-
 
 export function HeroForm() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<IngestionResult | null>(null);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
+  const [analysisError, setAnalysisError] = useState("");
+  const [error, setError] = useState("");
+  const request = useRef<AbortController | null>(null);
+  const input = useRef<HTMLInputElement>(null);
+  const main = useRef<HTMLElement>(null);
 
-  const runAnalysis = async (owner: string, repo: string) => {
-    setIsAnalyzing(true);
-    try {
-      const res = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ owner, repo }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        console.warn("Analysis failed:", data.error);
-        return;
-      }
-      setAnalysisResult(data as AnalysisResult);
-    } catch (err) {
-      console.warn("Analysis error:", err);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
+  useEffect(() => () => request.current?.abort(), []);
 
-  const handleSubmit = async (repoUrl: string = url) => {
-    const validated = repoUrlSchema.safeParse(repoUrl.trim());
+  async function analyze(value: string) {
+    if (loading) return;
+    const trimmed = value.trim();
+    const validated = repoUrlSchema.safeParse(trimmed);
     if (!validated.success) {
-      setError(validated.error.issues[0]?.message ?? "Invalid URL");
-      inputRef.current?.focus();
+      setError(validated.error.issues[0]?.message ?? "Enter a public GitHub repository URL.");
+      input.current?.focus();
       return;
     }
-    setError(null);
+
+    request.current?.abort();
+    const controller = new AbortController();
+    request.current = controller;
+    const send = (endpoint: string, body: object) => fetch(`/api/${endpoint}`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body), signal: controller.signal,
+    });
+    setUrl(trimmed);
     setLoading(true);
-    setResult(null);
-    setAnalysisResult(null);
+    setError("");
+    setAnalysisError("");
+    setAnalysis(null);
 
     try {
-      const res = await fetch("/api/ingest", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: repoUrl.trim() }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error ?? "Analysis failed");
-      }
-      const ingested = data as IngestionResult;
-      setResult(ingested);
-
-      const { owner, repo } = parseRepoUrl(repoUrl.trim());
-      void runAnalysis(owner, repo);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Something went wrong";
-      setError(msg);
-      toast.error(msg);
-    } finally {
+      const response = await send("ingest", { url: trimmed });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Could not read the repository.");
+      if (controller.signal.aborted) return;
+      setResult(data as IngestionResult);
       setLoading(false);
+      main.current?.focus();
+      window.scrollTo({ top: 0, behavior: "instant" });
+
+      try {
+        const analyzed = await send("analyze", parseRepoUrl(trimmed));
+        const report = await analyzed.json();
+        if (!analyzed.ok) throw new Error(report.error ?? "Could not finish the analysis.");
+        if (!controller.signal.aborted) setAnalysis(report as AnalysisResult);
+      } catch {
+        if (!controller.signal.aborted) setAnalysisError("The dependency analysis couldn’t finish. Repository details are still available. Try analyzing the repository again.");
+      }
+    } catch (cause) {
+      if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : "Could not read the repository.");
+    } finally {
+      if (!controller.signal.aborted) setLoading(false);
     }
-  };
+  }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit();
-  };
-
-  if (result) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <AnalysisDashboard
-          result={result}
-          analysisResult={analysisResult}
-          isAnalyzing={isAnalyzing}
-          onReset={() => {
-            setResult(null);
-            setAnalysisResult(null);
-            setIsAnalyzing(false);
-          }}
-        />
-      </motion.div>
-    );
+  function reset() {
+    request.current?.abort();
+    setResult(null);
+    setAnalysis(null);
+    setAnalysisError("");
+    setLoading(false);
+    main.current?.focus();
+    window.scrollTo({ top: 0, behavior: "instant" });
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.6 }}
-        className="relative"
-      >
-        <div
-          className={cn(
-            "relative flex items-center rounded-xl border bg-(--al-surface) transition-all duration-300",
-            error ? "border-destructive" : "border-border hover:border-(--al-blue)/50 focus-within:border-(--al-blue)",
-            "shadow-lg shadow-black/20"
-          )}
-        >
-          <Search className="absolute left-4 w-5 h-5 text-muted-foreground pointer-events-none shrink-0" />
-          <Input
-            ref={inputRef}
-            value={url}
-            onChange={(event) => { setUrl(event.target.value); setError(null); }}
-            onKeyDown={handleKeyDown}
-            placeholder="https://github.com/owner/repository"
-            className="border-0 bg-transparent pl-12 pr-4 py-6 text-base placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0"
-            disabled={loading}
-            aria-label="GitHub repository URL"
-          />
-          <Button
-            onClick={() => handleSubmit()}
-            disabled={loading || !url.trim()}
-            className="mr-2 shrink-0 bg-(--al-blue) hover:bg-(--al-blue)/90 text-white px-5"
-          >
-            {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                Analyze <ArrowRight className="ml-2 w-4 h-4" />
-              </>
-            )}
-          </Button>
+    <div className="atlas-app">
+      <a className="skip-link" href="#main-content">Skip to main content</a>
+      <header className="atlas-header">
+        <div className="atlas-wrap">
+          <span className="atlas-wordmark">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true"><path d="M3 3h7v7H8v6h6v-2h7v7h-7v-2H5v-9H3z" /></svg>
+            ArchLens
+          </span>
+          {result && <button className="atlas-header-button" onClick={reset}>Analyze another repo</button>}
         </div>
-
-        <AnimatePresence>
-          {error && (
-            <motion.p
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mt-2 text-sm text-destructive pl-1"
-            >
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.8 }}
-        className="mt-5 flex flex-wrap gap-2 justify-center"
-      >
-        <span className="text-sm text-muted-foreground/60 self-center">Try:</span>
-        {EXAMPLE_REPOS.map((repo) => {
-          const short = repo.replace("https://github.com/", "");
-          return (
-            <button
-              key={repo}
-              onClick={() => { setUrl(repo); handleSubmit(repo); }}
-              disabled={loading}
-              className="cursor-pointer text-sm px-3 py-1.5 rounded-full border border-border/50 bg-(--al-surface) hover:border-(--al-blue)/50 hover:bg-(--al-surface-elevated) text-muted-foreground hover:text-foreground transition-all duration-200 font-mono disabled:opacity-50"
-            >
-              {short}
-            </button>
-          );
-        })}
-      </motion.div>
-
-      <AnimatePresence>
-        {loading && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-8 overflow-hidden"
-            role="status"
-            aria-live="polite"
-            aria-label="Repository ingestion in progress"
-          >
-            <IngestLoadingState />
-          </motion.div>
+      </header>
+      <main id="main-content" ref={main} tabIndex={-1}>
+        {result ? <AnalysisDashboard result={result} analysisResult={analysis} analysisError={analysisError} /> : (
+          <>
+            <section className="atlas-wrap atlas-entry" aria-labelledby="atlas-title">
+              <div>
+                <h1 id="atlas-title">Map a GitHub repository</h1>
+                <p>See how files and modules fit together before you open the code.</p>
+                <form onSubmit={(event) => { event.preventDefault(); void analyze(url); }}>
+                  <label htmlFor="repo-url">Public GitHub repository URL</label>
+                  <div className="atlas-form-row">
+                    <input id="repo-url" ref={input} type="url" value={url} onChange={(event) => { setUrl(event.target.value); setError(""); }} placeholder="https://github.com/owner/repository" disabled={loading} aria-invalid={!!error} aria-describedby={error ? "repo-error" : undefined} />
+                    <button className="atlas-primary" disabled={loading || !url.trim()}>Analyze repo <ArrowRight size={16} /></button>
+                  </div>
+                  {error && <p id="repo-error" className="atlas-error" role="alert">{error}</p>}
+                </form>
+                <div className="atlas-examples"><span>Try a repository</span>{EXAMPLE_REPOS.map((repo) => <button key={repo} disabled={loading} onClick={() => void analyze(repo)}>{repo.replace("https://github.com/", "")}</button>)}</div>
+                {loading && <p className="atlas-status" role="status">Reading repository from GitHub…</p>}
+              </div>
+              <MapExample />
+            </section>
+            <section className="atlas-wrap atlas-guide" aria-labelledby="atlas-guide-title">
+              <h2 id="atlas-guide-title">How it works</h2>
+              <ol>
+                <li><strong>Open a public repo</strong><span>Paste its GitHub URL or choose an example.</span></li>
+                <li><strong>Read the map</strong><span>Select a file to follow its imports and spot cycles or hotspots.</span></li>
+                <li><strong>Review the findings</strong><span>Check the file tree, scores, and AI report when available.</span></li>
+              </ol>
+            </section>
+          </>
         )}
-      </AnimatePresence>
+      </main>
     </div>
   );
 }

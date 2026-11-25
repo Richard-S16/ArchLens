@@ -1,243 +1,72 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
 import dynamic from "next/dynamic";
-import {
-  GitBranch, Star, GitFork, Code2, ArrowLeft, FileCode, Globe,
-  Loader2, BrainCircuit, Network, Sparkles,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowUpRight, GitBranch } from "lucide-react";
 import type { IngestionResult } from "@/types/github";
 import type { AnalysisResult } from "@/types/analysis";
-import { LanguageBar } from "@/components/LanguageBar";
-import { FileTree } from "@/components/FileTree";
-import { ArchitectureScores } from "@/components/ArchitectureScores";
-import { InsightCards } from "@/components/InsightCards";
-import { DependencyGraphSummary } from "@/components/DependencyGraphSummary";
-import { container, item } from "@/constants/animations";
-import { AnalysisLoadingState } from "@/components/AnalysisLoadingState";
-import { AIAnalysisPanel } from "@/components/AIAnalysisPanel";
+import { LanguageBar } from "./LanguageBar";
+import { FileTree } from "./FileTree";
+import { ArchitectureScores } from "./ArchitectureScores";
+import { InsightCards } from "./InsightCards";
+import { DependencyGraphSummary } from "./DependencyGraphSummary";
+import { AIAnalysisPanel } from "./AIAnalysisPanel";
 
-const DependencyGraph = dynamic(
-  () => import("@/components/DependencyGraph").then((module) => ({ default: module.DependencyGraph })),
-  { ssr: false }
-);
+const DependencyGraph = dynamic(() => import("./DependencyGraph").then((module) => module.DependencyGraph), {
+  ssr: false,
+  loading: () => <p className="atlas-placeholder" role="status">Opening dependency map…</p>,
+});
 
-type Props = {
+const sections = ["Dependency map", "Overview", "File tree", "Scores", "Findings", "AI report"] as const;
+
+export function AnalysisDashboard({ result, analysisResult, analysisError }: {
   result: IngestionResult;
   analysisResult: AnalysisResult | null;
-  isAnalyzing: boolean;
-  onReset: () => void;
-};
-
-export function AnalysisDashboard({ result, analysisResult, isAnalyzing, onReset }: Props) {
+  analysisError: string;
+}) {
   const { meta, tree, languages } = result;
+  const [section, setSection] = useState<(typeof sections)[number]>("Dependency map");
+  const pending = <p className="atlas-placeholder" role={analysisError ? "alert" : "status"}>{analysisError || "Analyzing repository structure and dependencies…"}</p>;
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onReset}
-        className="mb-6 text-muted-foreground hover:text-foreground cursor-pointer -ml-1 hover:-translate-x-0.5 transition-all duration-150"
-        aria-label="Go back and analyze another repository"
-      >
-        <ArrowLeft className="w-4 h-4 mr-1" /> Analyze another
-      </Button>
-
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="mb-8"
-      >
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <GitBranch className="w-6 h-6 text-(--al-blue)" />
-              {meta.fullName}
-            </h2>
-            {meta.description && (
-              <p className="mt-1.5 text-muted-foreground max-w-xl">{meta.description}</p>
-            )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              {meta.topics.slice(0, 8).map((topic) => (
-                <Badge key={topic} variant="secondary" className="text-sm font-mono">{topic}</Badge>
-              ))}
-            </div>
-          </div>
-          <div className="flex gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1.5"><Star className="w-4 h-4 text-yellow-400" />{meta.stars.toLocaleString()}</span>
-            <span className="flex items-center gap-1.5"><GitFork className="w-4 h-4" />{meta.forks.toLocaleString()}</span>
-            {meta.language && (
-              <span className="flex items-center gap-1.5"><Code2 className="w-4 h-4 text-(--al-blue)" />{meta.language}</span>
-            )}
-            <a
-              href={`https://github.com/${meta.fullName}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 cursor-pointer hover:text-(--al-blue) transition-colors"
-            >
-              <Globe className="w-4 h-4" />GitHub
-            </a>
-          </div>
+    <div className="atlas-wrap atlas-workspace">
+      <div className="atlas-repo">
+        <div>
+          <h1>{meta.fullName}</h1>
+          {meta.description && <p>{meta.description}</p>}
         </div>
-      </motion.div>
-
-      <motion.div
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-      >
-        <motion.div variants={item} className="md:col-span-2">
-          <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors h-full">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Languages</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <LanguageBar languages={languages} />
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item}>
-          <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors h-full">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Repository Stats</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {[
-                { label: "Stars", value: meta.stars.toLocaleString(), icon: Star },
-                { label: "Forks", value: meta.forks.toLocaleString(), icon: GitFork },
-                { label: "Size", value: `${(meta.size / 1024).toFixed(1)} MB`, icon: FileCode },
-                { label: "Default Branch", value: meta.defaultBranch, icon: GitBranch },
-              ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2 text-muted-foreground">
-                    <Icon className="w-3.5 h-3.5" />{label}
-                  </span>
-                  <span className="font-mono text-foreground/90">{value}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div variants={item} className="md:col-span-2 lg:col-span-3">
-          <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Repository Structure</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FileTree tree={tree} />
-            </CardContent>
-          </Card>
-        </motion.div>
-
-      </motion.div>
-
-      <AnimatePresence mode="wait">
-        {isAnalyzing && !analysisResult && (
-          <Card className="mt-4 bg-(--al-surface) border-border/50">
-            <CardContent className="py-4">
-              <AnalysisLoadingState />
-            </CardContent>
-          </Card>
-        )}
-
-        {analysisResult && (
-          <motion.div
-            key="analysis"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="mt-4 space-y-4"
-          >
-            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                  <BrainCircuit className="w-3.5 h-3.5 text-(--al-blue)" />
-                  Architecture Health Scores
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ArchitectureScores scores={analysisResult.scores} />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                  <Network className="w-3.5 h-3.5 text-(--al-purple)" />
-                  Dependency Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DependencyGraphSummary result={analysisResult} />
-              </CardContent>
-            </Card>
-
-            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                  Architectural Insights
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {analysisResult.insights.length > 0 ? (
-                  <InsightCards insights={analysisResult.insights} />
-                ) : (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 py-4 px-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-emerald-500/15 flex items-center justify-center shrink-0">
-                      <Loader2 className="w-4 h-4 text-emerald-400 hidden" />
-                      <span className="text-emerald-400 text-base">✓</span>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-emerald-400">No architecture issues detected</p>
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        This repository follows good architectural practices — well-structured, low coupling, and no circular dependencies.
-                      </p>
-                    </div>
-                  </motion.div>
-                )}
-              </CardContent>
-            </Card>
-
-            {analysisResult.aiAnalysis && (
-              <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-(--al-purple)" />
-                    AI Intelligence Report
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <AIAnalysisPanel aiAnalysis={analysisResult.aiAnalysis} />
-                </CardContent>
-              </Card>
-            )}
-
-            <Card className="bg-(--al-surface) border-border/50 hover:border-(--al-blue)/30 transition-colors">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
-                  <Network className="w-3.5 h-3.5 text-(--al-blue)" />
-                  Interactive Dependency Graph
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0 overflow-hidden rounded-b-xl">
-                <DependencyGraph result={analysisResult} />
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <div className="atlas-repo-meta">
+          <span><GitBranch size={15} /> {meta.defaultBranch}</span>
+          {meta.language && <span>{meta.language}</span>}
+          <a href={`https://github.com/${meta.fullName}`} target="_blank" rel="noopener noreferrer">GitHub <ArrowUpRight size={15} /></a>
+        </div>
+      </div>
+      <nav className="atlas-sections" aria-label="Repository report">
+        {sections.map((name) => <button key={name} onClick={() => setSection(name)} aria-pressed={section === name}>{name}</button>)}
+      </nav>
+      {analysisResult ? (
+        <section hidden={section !== "Dependency map"} aria-label="Dependency map">
+          <DependencyGraph result={analysisResult} visible={section === "Dependency map"} />
+        </section>
+      ) : section === "Dependency map" && pending}
+      {section === "Overview" && <div className="atlas-report">
+        <section>
+          <h2>Repository stats</h2>
+          <dl className="atlas-facts">
+            <div><dt>Stars</dt><dd>{meta.stars.toLocaleString()}</dd></div>
+            <div><dt>Forks</dt><dd>{meta.forks.toLocaleString()}</dd></div>
+            <div><dt>Size</dt><dd>{(meta.size / 1024).toFixed(1)} MB</dd></div>
+            <div><dt>Default branch</dt><dd>{meta.defaultBranch}</dd></div>
+          </dl>
+          {meta.topics.length > 0 && <p className="atlas-topics">{meta.topics.slice(0, 8).join(" · ")}</p>}
+        </section>
+        <section><h2>Languages</h2><LanguageBar languages={languages} /></section>
+        <section><h2>Dependency analysis</h2>{analysisResult ? <DependencyGraphSummary result={analysisResult} /> : pending}</section>
+      </div>}
+      {section === "File tree" && <section className="atlas-report"><h2>Repository structure</h2><FileTree tree={tree} /></section>}
+      {section === "Scores" && <section className="atlas-report"><h2>Architecture scores</h2>{analysisResult ? <ArchitectureScores scores={analysisResult.scores} /> : pending}</section>}
+      {section === "Findings" && <section className="atlas-report"><h2>Architecture findings</h2>{analysisResult ? analysisResult.insights.length > 0 ? <InsightCards insights={analysisResult.insights} /> : <p>No issues were flagged in this analysis.</p> : pending}</section>}
+      {section === "AI report" && <section className="atlas-report"><h2>AI report</h2>{analysisResult ? analysisResult.aiAnalysis ? <AIAnalysisPanel aiAnalysis={analysisResult.aiAnalysis} /> : <p>No AI report is available for this analysis.</p> : pending}</section>}
     </div>
   );
 }

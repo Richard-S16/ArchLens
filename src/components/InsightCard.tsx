@@ -21,8 +21,7 @@ export function InsightCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.05 * index, ease: "easeOut" }}
-      whileHover={{ y: -2, transition: { duration: 0.15 } }}
-      className={`relative flex flex-col gap-3 p-4 rounded-xl border bg-(--al-surface) shadow-md ${cfg.border} ${cfg.glow} transition-all duration-200 group cursor-default`}
+      className={`relative flex flex-col gap-3 p-4 rounded-md border bg-(--al-surface) ${cfg.border}`}
     >
       <div className="flex items-start gap-3">
         <div

@@ -4,10 +4,10 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { useEffect } from "react";
 
 export function scoreColor(value: number): string {
-  if (value >= 80) return "oklch(0.65 0.18 160)";
-  if (value >= 60) return "oklch(0.62 0.22 240)";
-  if (value >= 40) return "oklch(0.72 0.19 60)";
-  return "oklch(0.65 0.22 27)";
+  if (value >= 80) return "#235a45";
+  if (value >= 60) return "#315f76";
+  if (value >= 40) return "#86491c";
+  return "#a03626";
 }
 
 export function scoreGrade(value: number): string {
@@ -75,7 +75,7 @@ export function ScoreGauge({
             cy="50"
             r={RADIUS}
             fill="none"
-            stroke="oklch(1 0 0 / 6%)"
+             stroke="var(--border)"
             strokeWidth={STROKE}
           />
           <motion.circle
@@ -88,7 +88,6 @@ export function ScoreGauge({
             strokeLinecap="round"
             strokeDasharray={circumference}
             style={{ strokeDashoffset: dashOffset }}
-            className="drop-shadow-[0_0_6px_currentColor]"
           />
         </svg>
 

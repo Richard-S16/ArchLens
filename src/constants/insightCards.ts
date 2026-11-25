@@ -4,33 +4,29 @@ import type { InsightVariant, InsightCategory } from "@/types/analysis";
 
 export const VARIANT_CONFIG: Record<
   InsightVariant,
-  { icon: ElementType; border: string; glow: string; badge: string; iconColor: string }
+  { icon: ElementType; border: string; badge: string; iconColor: string }
 > = {
   danger: {
     icon: AlertCircle,
     border: "border-red-500/25",
-    glow: "shadow-red-900/20",
-    badge: "bg-red-500/15 text-red-400 border-red-500/25",
-    iconColor: "text-red-400",
+    badge: "bg-red-500/10 text-red-800 border-red-500/25",
+    iconColor: "text-red-800",
   },
   warning: {
     icon: AlertTriangle,
     border: "border-amber-500/25",
-    glow: "shadow-amber-900/20",
-    badge: "bg-amber-500/15 text-amber-400 border-amber-500/25",
-    iconColor: "text-amber-400",
+    badge: "bg-amber-500/10 text-amber-900 border-amber-500/25",
+    iconColor: "text-amber-900",
   },
   success: {
     icon: CheckCircle2,
     border: "border-emerald-500/25",
-    glow: "shadow-emerald-900/20",
-    badge: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
-    iconColor: "text-emerald-400",
+    badge: "bg-emerald-500/10 text-emerald-800 border-emerald-500/25",
+    iconColor: "text-emerald-800",
   },
   info: {
     icon: Info,
     border: "border-(--al-blue)/25",
-    glow: "shadow-(--al-blue)/10",
     badge: "bg-(--al-blue)/15 text-(--al-blue) border-(--al-blue)/25",
     iconColor: "text-(--al-blue)",
   },
