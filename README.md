@@ -1,4 +1,7 @@
-<img width="1134" height="1079" alt="Home" src="https://github.com/user-attachments/assets/98f8c8c0-c717-475e-8c15-c4ae012d11e4" />
+<img width="1919" height="1079" alt="home" src="https://github.com/user-attachments/assets/56caa7a8-3b0c-4be5-b374-ce872e8d6909" />
+
+<img width="1919" height="1079" alt="overview" src="https://github.com/user-attachments/assets/80fc92c4-50ff-46b0-a1d8-8fcfe976824a" />
+
 
 # ArchLens
 
